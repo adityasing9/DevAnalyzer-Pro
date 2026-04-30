@@ -25,8 +25,8 @@ function App() {
     setLoading(true)
     setError('')
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
-      const response = await axios.post(`${apiUrl}/api/analyze`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1'
+      const response = await axios.post(`${apiUrl}/analyze-profile-v2`, {
         github_username: username
       })
       setReport(response.data)
