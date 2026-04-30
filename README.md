@@ -1,7 +1,7 @@
 <div align="center">
 
-# 🌌 Smart Resource Allocation
-### **AI-powered Volunteer Matching Platform**
+# 🌌 Developer Skill Analyzer Pro
+### **Professional GitHub Profile Auditing & Insights**
 
 ![Hero Mockup](./hero_mockup.png)
 
@@ -14,7 +14,7 @@
 </div>
 
 ## 📖 Overview
-**Smart Resource Allocation** is a high-performance, AI-driven platform designed to optimize the matching process between volunteers and project resources. By leveraging real-time data analysis and a serverless backend, it ensures maximum efficiency in resource distribution.
+**Developer Skill Analyzer Pro** is a high-performance, AI-driven platform designed to provide a deep, multi-dimensional analysis of any GitHub profile. By leveraging real-time data analysis and a serverless backend, it transforms raw repository data into actionable career insights.
 
 ---
 
@@ -56,7 +56,7 @@ graph TD
 ---
 
 ## 🧮 The AI Scoring Engine
-The platform uses a weighted multi-dimensional algorithm to analyze resource impact:
+The platform uses a weighted multi-dimensional algorithm to analyze developer impact:
 
 > [!NOTE]
 > **Score Normalization**: The final IQ is calculated using a logarithmic scale to ensure a fair 0-1000 distribution.
