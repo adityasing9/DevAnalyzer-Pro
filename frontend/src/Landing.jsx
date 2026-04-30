@@ -11,16 +11,31 @@ const Landing = () => {
       <div className="relative z-10 flex flex-col items-center justify-center flex-grow">
         {/* Main Title */}
         <h1 className="text-5xl md:text-6xl font-extrabold text-[#00ffcc] tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(0,255,204,0.4)]">
+<<<<<<< HEAD
           Developer Skill Analyzer Pro
+=======
+          Smart Resource Allocation
+>>>>>>> origin/main
         </h1>
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl font-medium text-[#00ccaa] opacity-90 tracking-wide">
+<<<<<<< HEAD
           AI-powered GitHub Profile Auditor
         </p>
       </div>
 
 
+=======
+          AI-powered Volunteer Matching Platform
+        </p>
+      </div>
+
+      {/* AI-Inspire Label */}
+      <div className="relative z-10 text-[#00ffcc] font-mono text-xl tracking-[0.2em] mb-12">
+        AI-Inspire
+      </div>
+>>>>>>> origin/main
 
       {/* Curved SVG Divider - Very Subtle and Dark */}
       <div className="absolute bottom-0 left-0 w-full leading-[0] z-0">
@@ -33,4 +48,7 @@ const Landing = () => {
 };
 
 export default Landing;
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main

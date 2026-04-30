@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import { Search, Star, Code2, AlertCircle, TrendingUp, Award, Terminal, Zap, PieChart, GitBranch } from 'lucide-react'
 
@@ -19,17 +20,31 @@ const GithubIcon = ({ size = 24, className = "" }) => (
     strokeLinejoin="round" 
     className={className}
   >
+=======
+import { useState, useEffect } from 'react'
+import { Search, Activity, Star, Code2, AlertCircle, TrendingUp, Layers, Award, Terminal } from 'lucide-react'
+import axios from 'axios'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+
+const GithubIcon = ({ className, size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+>>>>>>> origin/main
     <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5-.73 1.02-1.08 2.25-1 3.5 0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
     <path d="M9 18c-4.51 2-5-2-7-2" />
   </svg>
 )
 
+<<<<<<< HEAD
+=======
+const COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+>>>>>>> origin/main
 
 function App() {
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [report, setReport] = useState(null)
+<<<<<<< HEAD
   const [aiInsight, setAiInsight] = useState('')
   const [generatingAi, setGeneratingAi] = useState(false)
 
@@ -101,6 +116,8 @@ function App() {
     }
   }
 
+=======
+>>>>>>> origin/main
 
   const analyzeProfile = async (e) => {
     e.preventDefault()
@@ -110,11 +127,18 @@ function App() {
     setError('')
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1'
+<<<<<<< HEAD
       const response = await axios.post(`${apiUrl}/analyze-v3`, {
         github_username: username
       })
       setReport(response.data)
       generateAiMentor(response.data)
+=======
+      const response = await axios.post(`${apiUrl}/analyze-profile-v2`, {
+        github_username: username
+      })
+      setReport(response.data)
+>>>>>>> origin/main
     } catch (err) {
       setError(err.response?.data?.detail || 'GitHub User not found or API Limit reached.')
     } finally {
@@ -122,6 +146,7 @@ function App() {
     }
   }
 
+<<<<<<< HEAD
 
 
   return (
@@ -159,10 +184,42 @@ function App() {
             </h1>
             <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
               The world's first AI-powered GitHub profile auditor. Get professional insights in seconds.
+=======
+  return (
+    <div className="min-h-screen relative w-full overflow-x-hidden">
+      <div className="bg-mesh" />
+      <div className="bg-grid" />
+
+      {/* Header Container */}
+      <nav className="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 p-2 rounded-lg shadow-lg">
+            <Terminal size={24} className="text-white" />
+          </div>
+          <span className="text-2xl font-bold tracking-tight text-white">DevAnalyzer<span className="text-blue-500">.</span></span>
+        </div>
+        <div className="hidden md:flex gap-8 text-sm font-medium text-slate-400">
+          <a href="#" className="hover:text-white transition-colors">Docs</a>
+          <a href="#" className="hover:text-white transition-colors">API</a>
+        </div>
+      </nav>
+
+      <main className="max-w-6xl mx-auto px-6 pt-12 pb-24 relative z-10 flex flex-col items-center">
+        
+        {/* Hero Section */}
+        {!report && !loading && (
+          <div className="w-full text-center animate-fade-in mb-12">
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white">
+              Unlock Your <span className="text-blue-400">GitHub Potential</span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Professional-grade skill analysis.
+>>>>>>> origin/main
             </p>
           </div>
         )}
 
+<<<<<<< HEAD
         {/* Search Engine */}
         <div className={`w-full max-w-3xl mx-auto transition-all duration-700 ${report ? 'mb-16' : 'mb-32'}`}>
           <form onSubmit={analyzeProfile} className="relative group">
@@ -175,12 +232,27 @@ function App() {
                 type="text"
                 className="w-full px-6 py-5 bg-transparent text-xl text-white focus:outline-none placeholder-slate-600 font-medium"
                 placeholder="GitHub Username (e.g. adityasing9)"
+=======
+        {/* Search Bar - Fixed Sizing */}
+        <div className={`w-full max-w-2xl transition-all duration-700 ${report ? 'mb-12' : 'mb-24'}`}>
+          <form onSubmit={analyzeProfile} className="relative group w-full">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-1000"></div>
+            <div className="relative flex items-center bg-slate-900 border border-white/10 rounded-2xl p-2 shadow-2xl w-full">
+              <div className="pl-4">
+                <GithubIcon className="text-slate-500" />
+              </div>
+              <input
+                type="text"
+                className="w-full px-4 py-4 bg-transparent text-lg text-white focus:outline-none placeholder-slate-600"
+                placeholder="Enter GitHub Username..."
+>>>>>>> origin/main
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
               <button
                 type="submit"
                 disabled={loading}
+<<<<<<< HEAD
                 className="whitespace-nowrap px-10 py-5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-50"
               >
                 {loading ? 'ANALYZING...' : 'RUN AUDIT'}
@@ -201,46 +273,30 @@ function App() {
             <div className="lg:col-span-4 space-y-8">
               {/* Profile Card */}
               <div className="bg-slate-900/50 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-10 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-[64px]" />
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative mb-8">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full blur-xl opacity-40 group-hover:opacity-70 transition duration-1000"></div>
-                    <img src={report.avatar_url} alt="Profile" className="relative w-32 h-32 rounded-full border-4 border-[#020617] object-cover" />
-                  </div>
-                  <h2 className="text-3xl font-black text-white mb-2">{report.name}</h2>
-                  <p className="text-cyan-400 font-bold tracking-widest text-sm mb-6 uppercase">@{report.github_username}</p>
-                  <p className="text-slate-400 text-sm leading-relaxed mb-8 italic">"{report.bio || 'Exploring the boundaries of technology.'}"</p>
-                  
-                  <div className="grid grid-cols-2 gap-4 w-full">
-                    <div className="bg-white/5 rounded-[1.5rem] p-6 border border-white/5">
-                      <div className="text-3xl font-black text-white">{report.total_repos}</div>
-                      <div className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mt-1">Repos</div>
+                <div className="border border-white/10 rounded-3xl p-8" style={{ backgroundColor: '#1e293b' }}>
+                  <div className="flex flex-col items-center">
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full" />
+                      <img 
+                        src={report.avatar_url} 
+                        alt={report.github_username}
+                        className="w-40 h-40 rounded-full border-4 border-cyan-500/30 relative z-10"
+                      />
                     </div>
-                    <div className="bg-white/5 rounded-[1.5rem] p-6 border border-white/5">
-                      <div className="text-3xl font-black text-white">{report.total_stars}</div>
-                      <div className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mt-1">Stars</div>
-                    </div>
+                    <h2 className="text-4xl font-black text-white mb-2">{report.name || report.github_username}</h2>
+                    <p className="text-cyan-400 font-mono tracking-wider mb-6">@{report.github_username.toUpperCase()}</p>
+                    <p className="text-slate-400 text-center italic max-w-lg">"{report.bio || 'Exploring the boundaries of technology.'}"</p>
                   </div>
                 </div>
-              </div>
 
               {/* IQ Score Card */}
-              <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 rounded-[2.5rem] p-10">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-lg font-bold text-white tracking-tight">Developer IQ</h3>
-                  <Award className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
+                <div className="border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center" style={{ backgroundColor: '#1e293b' }}>
+                  <div className="text-slate-500 uppercase tracking-[0.3em] text-[10px] font-bold mb-4">Core Developer IQ</div>
+                  <div className="text-8xl font-black text-white tracking-tighter mb-4">{report.score}</div>
+                  <div className="h-2 w-48 rounded-full overflow-hidden" style={{ backgroundColor: '#0f172a' }}>
+                    <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style={{ width: `${(report.score/1000)*100}%` }} />
+                  </div>
                 </div>
-                <div className="text-8xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
-                  {report.score}
-                </div>
-                <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden mb-4">
-                  <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-[2000ms] ease-out" style={{ width: `${(report.score / 1000) * 100}%` }} />
-                </div>
-                <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  <span>Novice</span>
-                  <span>Master</span>
-                </div>
-              </div>
 
               {/* Readiness Dial */}
               <div className="border border-white/5 rounded-[2.5rem] p-10 flex flex-col items-center" style={{ backgroundColor: '#0f172a' }}>
@@ -265,32 +321,30 @@ function App() {
               
               {/* Top Row: Specializations & Insights */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="border border-white/5 rounded-[2.5rem] p-8" style={{ backgroundColor: '#0f172a' }}>
+                <div className="border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                     <Code2 className="w-6 h-6 text-cyan-400" /> Inferred Specializations
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {report.inferred_domains?.map((domain, i) => (
-                      <span key={i} className="px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-widest" style={{ backgroundColor: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)', color: '#22d3ee' }}>
-                        {domain}
+                    {report.specializations.map(spec => (
+                      <span key={spec} className="px-4 py-2 border border-cyan-500/20 rounded-xl text-xs font-bold text-cyan-300" style={{ backgroundColor: '#083344' }}>
+                        {spec}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="border border-white/5 rounded-[2.5rem] p-8" style={{ backgroundColor: '#0f172a' }}>
+                <div className="border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                     <Zap className="w-6 h-6 text-yellow-400" /> Cognitive Insights
                   </h3>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-3 bg-green-500/5 rounded-2xl border border-green-500/10">
-                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                      <div className="text-xs font-bold text-green-400 uppercase tracking-widest">Strength: {report.strengths}</div>
-                    </div>
-                    <div className="flex items-center gap-4 p-3 bg-red-500/5 rounded-2xl border border-red-500/10">
-                      <div className="w-2 h-2 rounded-full bg-red-400" />
-                      <div className="text-xs font-bold text-red-400 uppercase tracking-widest">Growth Area: {report.weaknesses}</div>
-                    </div>
+                    {report.insights.map((insight, i) => (
+                      <div key={i} className="flex gap-4 items-start">
+                        <div className="w-1.5 h-1.5 rounded-full mt-2" style={{ backgroundColor: '#facc15' }} />
+                        <p className="text-sm text-slate-300 leading-relaxed">{insight}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -313,18 +367,10 @@ function App() {
               </div>
 
               {/* Flagship Projects List */}
-              <div className="border border-white/5 rounded-[2.5rem] p-10" style={{ backgroundColor: '#0f172a' }}>
+              <div className="border border-white/10 rounded-3xl p-10" style={{ backgroundColor: '#0f172a' }}>
                 <h3 className="text-lg font-bold text-white mb-8 flex items-center gap-3">
                   <GitBranch className="w-6 h-6 text-green-400" /> Core Repository Audit
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {report.top_projects?.map((repo, i) => (
-                    <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:border-cyan-500/20 transition-all group cursor-default">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-black text-white group-hover:text-cyan-400 transition-colors text-lg">{repo.name}</h4>
-                        <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-400/10 rounded-full">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs font-bold text-yellow-400">{repo.stars}</span>
                         </div>
                       </div>
                       <p className="text-xs text-slate-500 mb-6 leading-relaxed line-clamp-2">{repo.description}</p>
@@ -426,9 +472,103 @@ function App() {
           </div>
         </div>
       )}
+=======
+                className="whitespace-nowrap px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {loading ? '...' : 'Analyze Now'}
+              </button>
+            </div>
+          </form>
+          {error && <p className="mt-4 text-center text-red-400 font-medium flex items-center justify-center gap-2"><AlertCircle size={18} /> {error}</p>}
+        </div>
+
+        {/* Dashboard Grid - Fixed Sizing */}
+        {report && (
+          <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 animate-fade-in">
+            
+            {/* Left Column */}
+            <div className="md:col-span-4 flex flex-col gap-6">
+              <div className="glass-card p-8 rounded-3xl">
+                <p className="text-slate-400 font-medium mb-2 uppercase text-xs">Overall Score</p>
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-7xl font-black text-white">{report.score}</h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="glass-card p-6 rounded-3xl flex flex-col items-center">
+                  <Star className="text-yellow-400 mb-2" size={24} />
+                  <p className="text-slate-400 text-xs mb-1">Stars</p>
+                  <p className="text-xl font-bold text-white">{report.total_stars}</p>
+                </div>
+                <div className="glass-card p-6 rounded-3xl flex flex-col items-center">
+                  <Code2 className="text-blue-400 mb-2" size={24} />
+                  <p className="text-slate-400 text-xs mb-1">Repos</p>
+                  <p className="text-xl font-bold text-white">{report.total_repos}</p>
+                </div>
+              </div>
+
+              <div className="glass-card p-8 rounded-3xl">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+                  <Layers className="text-purple-400" size={18} /> Domains
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {report.inferred_domains.map(domain => (
+                    <span key={domain} className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-full text-xs font-semibold uppercase">
+                      {domain}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="md:col-span-8 flex flex-col gap-6">
+              <div className="glass-card p-8 rounded-3xl min-h-[450px] w-full">
+                <h3 className="text-xl font-bold text-white mb-8 uppercase tracking-widest text-sm">Language Distribution</h3>
+                <div className="w-full h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={Object.entries(report.languages).map(([name, bytes]) => ({ name, value: Math.round(bytes / 1024) })).sort((a,b) => b.value - a.value).slice(0, 5)}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                      <XAxis dataKey="name" stroke="#64748b" axisLine={false} tickLine={false} dy={10} fontSize={12} />
+                      <YAxis hide />
+                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} />
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={32}>
+                        {Object.entries(report.languages).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="glass-card p-6 rounded-3xl border-l-4 border-emerald-500">
+                  <h4 className="font-bold text-emerald-400 mb-1 text-xs uppercase">Strength</h4>
+                  <p className="text-slate-300 text-sm leading-snug">{report.strengths}</p>
+                </div>
+                <div className="glass-card p-6 rounded-3xl border-l-4 border-red-500">
+                  <h4 className="font-bold text-red-400 mb-1 text-xs uppercase">Gap</h4>
+                  <p className="text-slate-300 text-sm leading-snug">{report.weaknesses}</p>
+                </div>
+                <div className="glass-card p-6 rounded-3xl border-l-4 border-blue-500">
+                  <h4 className="font-bold text-blue-400 mb-1 text-xs uppercase">Action</h4>
+                  <p className="text-slate-300 text-sm leading-snug">{report.suggestions}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+      </main>
+>>>>>>> origin/main
     </div>
   )
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 export default App

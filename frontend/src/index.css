@@ -1,5 +1,8 @@
 @import "tailwindcss";
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 @theme {
   --color-primary: #3b82f6;
   --color-secondary: #10b981;
@@ -7,13 +10,19 @@
   --color-background: #020617;
   --color-card: #0f172a;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 @layer base {
   body {
     @apply m-0 font-sans bg-background text-slate-50 overflow-x-hidden;
   }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 @layer utilities {
   .bg-mesh {
     @apply fixed top-0 left-0 w-full h-full -z-10;
@@ -23,12 +32,16 @@
       radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
     background-color: #020617;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
   .bg-grid {
     @apply fixed top-0 left-0 w-full h-full -z-10 opacity-20;
     background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size: 40px 40px;
   }
+<<<<<<< HEAD
 
   .glass-card {
     @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300;
@@ -42,11 +55,23 @@
     animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
+=======
+  .glass-card {
+    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300;
+  }
+  .glass-card:hover {
+    @apply border-blue-500/30 bg-slate-900/80;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+>>>>>>> origin/main
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
 }
+<<<<<<< HEAD
 
 .capture-mode {
   background-color: #020617 !important;
@@ -57,3 +82,5 @@
   backdrop-filter: none !important;
   transition: none !important;
 }
+=======
+>>>>>>> origin/main

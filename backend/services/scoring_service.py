@@ -22,7 +22,10 @@ def calculate_score(data: dict) -> int:
     # Logarithmic Normalization (to keep it in a 0-1000 range visually)
     if raw_score <= 0: return 0
     normalized = int(200 * math.log10(raw_score + 1))
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
     
     return min(normalized, 1000)
 

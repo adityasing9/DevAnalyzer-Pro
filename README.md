@@ -7,6 +7,7 @@
 [![Stack: React + Supabase](https://img.shields.io/badge/Stack-React_%2B_Supabase-blue?style=for-the-badge)](#)
 [![Design: Minimalist Neon](https://img.shields.io/badge/Design-Minimalist_Neon-cyan?style=for-the-badge)](#)
 
+<<<<<<< HEAD
 ## ✨ New in v2.0
 - **🎯 Career Readiness Dial**: Real-time percentage matching for specific career domains (Frontend, Backend, etc.).
 - 🧠 **AI Career Mentor**: Real-time professional guidance powered by Gemini 1.5 Flash.
@@ -15,13 +16,27 @@
 - 📈 **Logarithmic Scoring (v3.0)**: Fair, activity-weighted evaluation on a 0-1000 scale.
 - 🧬 **Tech DNA Mapping**: Deep-dive analysis of your primary and secondary tech stacks.
 - 🚀 **Precision Roadmap**: Actionable 3-step growth plans tailored to your specialization.
+=======
+---
+
+</div>
+
+## ✨ New in v2.0
+- **🎯 Career Readiness Dial**: Real-time percentage matching for specific career domains (Frontend, Backend, etc.).
+- **📂 Flagship Project Audit**: Automatic detection and analysis of your most impactful repositories.
+- **🛣️ Precision Career Roadmap**: AI-generated 3-step growth plan tailored to your profile.
+- **🧬 Technological DNA**: High-fidelity visualization of your programming language landscape.
+>>>>>>> origin/main
 - **⚡ Serverless Performance**: 100% Edge-computed analysis for near-instant results.
 
 ---
 
 ## 🏗️ System Architecture: **Serverless Monolith**
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 This project utilizes a **Modern Serverless Architecture**. Unlike traditional server-based applications, this platform is decentralized across edge providers to ensure 99.9% uptime and global scalability.
 
 ### **Architecture Workflow**
@@ -42,6 +57,7 @@ graph TD
 
 ---
 
+<<<<<<< HEAD
 ### 🛠️ Architecture (v3.0)
 - **Frontend**: React 19 + Vite + Tailwind CSS v4 + Recharts.
 - **Engine**: Supabase Edge Functions (Deno Runtime).
@@ -51,6 +67,8 @@ graph TD
 
 ---
 
+=======
+>>>>>>> origin/main
 ## 🛠️ Technical Stack
 
 ### **Frontend Layer**
@@ -103,4 +121,7 @@ VITE_API_URL=https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1
 
 ---
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
