@@ -3,7 +3,7 @@
 # 🌌 Developer Skill Analyzer Pro
 ### **Professional GitHub Profile Auditing & Insights**
 
-![Hero Mockup](./hero_mockup.png)
+
 
 [![Architecture: Serverless](https://img.shields.io/badge/Architecture-Serverless-green?style=for-the-badge)](#)
 [![Stack: React + Supabase](https://img.shields.io/badge/Stack-React_%2B_Supabase-blue?style=for-the-badge)](#)
@@ -93,6 +93,5 @@ VITE_API_URL=https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1
 ---
 
 <div align="center">
-  <h2 style="color: #00ffcc;">AI-Inspire System</h2>
   <sub>Developed & Maintained by Aditya Sing</sub>
 </div>
