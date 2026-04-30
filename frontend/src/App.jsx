@@ -42,6 +42,37 @@ function App() {
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
+          // Neural Style Proxy: Overwrite getComputedStyle in the cloned document
+          // html2canvas uses this internally. By intercepting it, we can force HEX colors.
+          const originalGetComputedStyle = clonedDoc.defaultView.getComputedStyle;
+          clonedDoc.defaultView.getComputedStyle = function(el) {
+            const style = originalGetComputedStyle.call(clonedDoc.defaultView, el);
+            
+            const toHex = (color) => {
+              if (!color || typeof color !== 'string' || color === 'transparent' || color.includes('rgba(0, 0, 0, 0)')) return color;
+              if (color.includes('okl')) return '#38bdf8'; // Direct hex fallback
+              
+              const rgb = color.match(/\d+/g);
+              if (!rgb || rgb.length < 3) return color;
+              
+              const r = parseInt(rgb[0]).toString(16).padStart(2, '0');
+              const g = parseInt(rgb[1]).toString(16).padStart(2, '0');
+              const b = parseInt(rgb[2]).toString(16).padStart(2, '0');
+              return `#${r}${g}${b}`;
+            };
+
+            // Proxy the style object to intercept color properties
+            return new Proxy(style, {
+              get(target, prop) {
+                const val = target[prop];
+                if (typeof prop === 'string' && (prop.toLowerCase().includes('color') || prop === 'fill' || prop === 'stroke')) {
+                   return toHex(val);
+                }
+                return val;
+              }
+            });
+          };
+
           const report = clonedDoc.getElementById('dashboard-report')
           if (report) {
             report.style.width = '1200px';
@@ -49,39 +80,20 @@ function App() {
             report.style.backgroundColor = '#020617';
             report.classList.add('capture-mode')
             
-            const all = report.querySelectorAll('*')
-            all.forEach(el => {
-              const computed = window.getComputedStyle(el)
-              
-              const toHex = (color) => {
-                if (!color || color === 'transparent' || color.includes('rgba(0, 0, 0, 0)')) return color
-                if (color.includes('okl')) return '#ffffff'
-                const rgb = color.match(/\d+/g)
-                if (!rgb || rgb.length < 3) return color
-                return `#${parseInt(rgb[0]).toString(16).padStart(2, '0')}${parseInt(rgb[1]).toString(16).padStart(2, '0')}${parseInt(rgb[2]).toString(16).padStart(2, '0')}`
-              }
-
-              // Capture styles BEFORE removing stylesheets
-              const stylesToCapture = ['color', 'backgroundColor', 'borderColor', 'fontSize', 'fontWeight', 'padding', 'margin', 'display', 'flexDirection', 'alignItems', 'justifyContent', 'gap'];
-              const captured = {};
-              stylesToCapture.forEach(prop => {
-                captured[prop] = prop.includes('Color') ? toHex(computed[prop]) : computed[prop];
-              });
-
-              // Apply as inline styles
-              Object.assign(el.style, captured);
-              
-              if (el.classList.contains('recharts-responsive-container')) {
-                el.style.width = '1000px';
-                el.style.height = '400px';
-              }
-            })
-
-            // NOW remove all stylesheets to prevent html2canvas from crashing on them
+            // Remove all stylesheets to force reliance on our proxy/inline styles if needed
+            // but usually the proxy is enough.
             const links = clonedDoc.getElementsByTagName('link');
             const styles = clonedDoc.getElementsByTagName('style');
             while(links[0]) links[0].parentNode.removeChild(links[0]);
             while(styles[0]) styles[0].parentNode.removeChild(styles[0]);
+
+            // Manually set some critical layout styles that might have been lost
+            report.querySelectorAll('*').forEach(el => {
+               if (el.classList.contains('recharts-responsive-container')) {
+                  el.style.width = '1000px';
+                  el.style.height = '400px';
+               }
+            });
           }
         }
       })
@@ -305,13 +317,12 @@ function App() {
                   </div>
                 </div>
 
-                {/* Flagship Projects List */}
                 <div className="border border-white/10 rounded-3xl p-10" style={{ backgroundColor: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-8 flex items-center gap-3">
                     <GitBranch className="w-6 h-6 text-green-400" /> Core Repository Audit
                   </h3>
                   <div className="space-y-4">
-                    {report.top_repos.map(repo => (
+                    {report.top_repos && report.top_repos.length > 0 ? report.top_repos.map(repo => (
                       <div key={repo.name} className="p-6 border border-white/5 rounded-2xl flex items-center justify-between" style={{ backgroundColor: '#1e293b' }}>
                         <div>
                           <h4 className="text-white font-bold mb-1">{repo.name}</h4>
@@ -322,7 +333,11 @@ function App() {
                           <div className="text-[10px] text-slate-500 uppercase tracking-widest">{repo.language}</div>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl">
+                         <p className="text-slate-500 text-sm">No significant repositories identified in recent activity.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
