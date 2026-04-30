@@ -3,7 +3,7 @@
 # 🌌 Developer Skill Analyzer Pro
 ### **Professional GitHub Profile Auditing & Insights**
 
-
+![Hero Mockup](./hero_mockup.png)
 
 [![Architecture: Serverless](https://img.shields.io/badge/Architecture-Serverless-green?style=for-the-badge)](#)
 [![Stack: React + Supabase](https://img.shields.io/badge/Stack-React_%2B_Supabase-blue?style=for-the-badge)](#)
@@ -13,8 +13,12 @@
 
 </div>
 
-## 📖 Overview
-**Developer Skill Analyzer Pro** is a high-performance, AI-driven platform designed to provide a deep, multi-dimensional analysis of any GitHub profile. By leveraging real-time data analysis and a serverless backend, it transforms raw repository data into actionable career insights.
+## ✨ New in v2.0
+- **🎯 Career Readiness Dial**: Real-time percentage matching for specific career domains (Frontend, Backend, etc.).
+- **📂 Flagship Project Audit**: Automatic detection and analysis of your most impactful repositories.
+- **🛣️ Precision Career Roadmap**: AI-generated 3-step growth plan tailored to your profile.
+- **🧬 Technological DNA**: High-fidelity visualization of your programming language landscape.
+- **⚡ Serverless Performance**: 100% Edge-computed analysis for near-instant results.
 
 ---
 
@@ -93,5 +97,6 @@ VITE_API_URL=https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1
 ---
 
 <div align="center">
+  <h2 style="color: #00ffcc;">AI-Inspire System</h2>
   <sub>Developed & Maintained by Aditya Sing</sub>
 </div>
