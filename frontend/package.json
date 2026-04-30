@@ -13,11 +13,8 @@
     "@tailwindcss/postcss": "^4.2.4",
     "autoprefixer": "^10.5.0",
     "axios": "^1.15.2",
-<<<<<<< HEAD
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
-=======
->>>>>>> origin/main
     "lucide-react": "^1.14.0",
     "postcss": "^8.5.12",
     "react": "^19.2.5",
