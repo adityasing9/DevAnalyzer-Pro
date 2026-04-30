@@ -35,46 +35,66 @@ function App() {
       const element = document.getElementById('dashboard-report')
       if (!element) throw new Error('Report element not found')
 
-      // Use a robust capture approach with explicit hex styles
       const canvas = await html2canvas(element, {
-        scale: 1.5,
+        scale: 2,
         backgroundColor: '#020617',
         useCORS: true,
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
+          // 1. Scorched earth CSS sanitization
+          const styleTags = clonedDoc.getElementsByTagName('style');
+          for (let tag of styleTags) {
+            tag.innerHTML = tag.innerHTML
+              .replace(/oklch\([^)]+\)/g, '#38bdf8')
+              .replace(/oklab\([^)]+\)/g, '#38bdf8');
+          }
+
+          // 2. Handle linked stylesheets (if possible, though they might be CORS protected)
+          // For safety, we'll also traverse elements and force computed styles to hex
           const report = clonedDoc.getElementById('dashboard-report')
           if (report) {
+            report.style.width = '1200px';
+            report.style.padding = '60px';
+            report.style.backgroundColor = '#020617';
             report.classList.add('capture-mode')
-            // Scrub all modern color functions
-            const all = report.getElementsByTagName('*')
-            for (let i = 0; i < all.length; i++) {
-              const el = all[i]
-              const style = el.getAttribute('style') || ''
-              if (style.includes('oklch') || style.includes('oklab')) {
-                el.setAttribute('style', style.replace(/oklch\([^)]+\)/g, '#ffffff').replace(/oklab\([^)]+\)/g, '#ffffff'))
-              }
+            
+            const all = report.querySelectorAll('*')
+            all.forEach(el => {
               const computed = window.getComputedStyle(el)
-              if (computed.color.includes('okl') || computed.backgroundColor.includes('okl')) {
-                 el.style.color = '#ffffff'
-                 el.style.backgroundColor = '#0f172a'
-                 el.style.borderColor = 'rgba(255,255,255,0.1)'
+              
+              const toHex = (color) => {
+                if (!color || color === 'transparent' || color.includes('rgba(0, 0, 0, 0)')) return color
+                if (color.includes('okl')) return '#ffffff'
+                const rgb = color.match(/\d+/g)
+                if (!rgb || rgb.length < 3) return color
+                return `#${parseInt(rgb[0]).toString(16).padStart(2, '0')}${parseInt(rgb[1]).toString(16).padStart(2, '0')}${parseInt(rgb[2]).toString(16).padStart(2, '0')}`
               }
-            }
+
+              // Overwrite with HEX to prevent html2canvas from seeing oklch
+              el.style.color = toHex(computed.color)
+              el.style.backgroundColor = toHex(computed.backgroundColor)
+              el.style.borderColor = toHex(computed.borderColor)
+              
+              if (el.classList.contains('recharts-responsive-container')) {
+                el.style.width = '1000px';
+                el.style.height = '400px';
+              }
+            })
           }
         }
       })
 
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgData = canvas.toDataURL('image/jpeg', 0.9)
+      const imgData = canvas.toDataURL('image/jpeg', 1.0)
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
       
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`${report.github_username}_audit_report.pdf`)
+      pdf.save(`${report.github_username}_strategic_audit.pdf`)
     } catch (err) {
       console.error('CRITICAL PDF ERROR:', err)
-      alert(`Export Failed: ${err.message}. Please check if all charts are visible and try again.`)
+      alert(`Export Failed: ${err.message}. This is likely due to modern CSS parsing. Please try again or use a different browser.`)
     }
   }
 
