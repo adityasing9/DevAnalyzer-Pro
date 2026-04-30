@@ -42,16 +42,6 @@ function App() {
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
-          // 1. Scorched earth CSS sanitization
-          const styleTags = clonedDoc.getElementsByTagName('style');
-          for (let tag of styleTags) {
-            tag.innerHTML = tag.innerHTML
-              .replace(/oklch\([^)]+\)/g, '#38bdf8')
-              .replace(/oklab\([^)]+\)/g, '#38bdf8');
-          }
-
-          // 2. Handle linked stylesheets (if possible, though they might be CORS protected)
-          // For safety, we'll also traverse elements and force computed styles to hex
           const report = clonedDoc.getElementById('dashboard-report')
           if (report) {
             report.style.width = '1200px';
@@ -71,16 +61,27 @@ function App() {
                 return `#${parseInt(rgb[0]).toString(16).padStart(2, '0')}${parseInt(rgb[1]).toString(16).padStart(2, '0')}${parseInt(rgb[2]).toString(16).padStart(2, '0')}`
               }
 
-              // Overwrite with HEX to prevent html2canvas from seeing oklch
-              el.style.color = toHex(computed.color)
-              el.style.backgroundColor = toHex(computed.backgroundColor)
-              el.style.borderColor = toHex(computed.borderColor)
+              // Capture styles BEFORE removing stylesheets
+              const stylesToCapture = ['color', 'backgroundColor', 'borderColor', 'fontSize', 'fontWeight', 'padding', 'margin', 'display', 'flexDirection', 'alignItems', 'justifyContent', 'gap'];
+              const captured = {};
+              stylesToCapture.forEach(prop => {
+                captured[prop] = prop.includes('Color') ? toHex(computed[prop]) : computed[prop];
+              });
+
+              // Apply as inline styles
+              Object.assign(el.style, captured);
               
               if (el.classList.contains('recharts-responsive-container')) {
                 el.style.width = '1000px';
                 el.style.height = '400px';
               }
             })
+
+            // NOW remove all stylesheets to prevent html2canvas from crashing on them
+            const links = clonedDoc.getElementsByTagName('link');
+            const styles = clonedDoc.getElementsByTagName('style');
+            while(links[0]) links[0].parentNode.removeChild(links[0]);
+            while(styles[0]) styles[0].parentNode.removeChild(styles[0]);
           }
         }
       })
