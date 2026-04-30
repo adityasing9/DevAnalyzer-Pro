@@ -1,88 +1,41 @@
-# 🚀 DevAnalyzer Pro
+<div align="center">
 
-![Modern Midnight Design](https://img.shields.io/badge/Design-Modern_Midnight-blue?style=for-the-badge)
-![Serverless](https://img.shields.io/badge/Architecture-Serverless-green?style=for-the-badge)
-![GitHub API](https://img.shields.io/badge/Data-GitHub_API_v3-black?style=for-the-badge)
+# 🌌 AI-Inspire: Shape the AI Frontier
 
-**DevAnalyzer Pro** is a professional-grade, serverless platform designed to provide a deep, multi-dimensional analysis of any GitHub profile. Using a weighted scoring engine and domain inference logic, it transforms raw repository data into actionable career insights.
+![Hero Mockup](./hero_mockup.png)
 
----
+### **Intelligence Redefined. Futuristic Precision. Next-Gen Orchestration.**
 
-## 🌐 Live Access
-- **Frontend**: [http://soft-biscochitos-0b28e5.netlify.app](http://soft-biscochitos-0b28e5.netlify.app)
-- **API (Edge)**: Hosted on Supabase Edge Functions
+[![Design](https://img.shields.io/badge/Design-Modern_Midnight-blue?style=for-the-badge)](#)
+[![Theme](https://img.shields.io/badge/Theme-Futuristic_UI-cyan?style=for-the-badge)](#)
+[![Status](https://img.shields.io/badge/Platform-SaaS_Ready-green?style=for-the-badge)](#)
 
 ---
 
-## ✨ Features
-- **🎯 0-1000 Weighted Scoring**: A complex algorithm that evaluates Volume, Quality, Activity, and Technological Diversity.
-- **🧠 Domain Inference**: Automatically identifies whether a developer is focused on Frontend, Backend, Data/ML, Systems, or Mobile.
-- **📊 Real-time Visualizations**: Dynamic language distribution charts powered by Recharts.
-- **💡 Career Insights**: AI-driven (deterministic logic) identification of Strengths, Gaps, and Actionable Steps.
-- **🌌 Premium UI**: A "Modern Midnight" design system featuring mesh gradients, glassmorphism, and responsive Bento-box layouts.
+</div>
+
+## 🚀 The Vision
+**AI-Inspire** is the ultimate SaaS orchestration platform for next-gen artificial intelligence. Designed with a minimal, high-contrast "Modern Midnight" aesthetic, it empowers developers to deploy, scale, and optimize AI workflows with unprecedented precision.
+
+## ✨ Futuristic Design System
+- **Deep Space Palette**: A rich `#020617` foundation with teal-to-cyan mesh gradients.
+- **Glassmorphism**: Subtle blur effects and border glows for a premium layer depth.
+- **High Contrast**: Neon cyan accents that cut through the dark theme for maximum readability.
+- **Organic Flow**: Smooth SVG curved dividers that eliminate rigid boxy structures.
 
 ---
 
 ## 🛠️ Tech Stack
-
-| Layer | Technology |
+| Component | Technology |
 | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS v4 |
-| **Charts** | Recharts (Responsive Vector Graphics) |
-| **Backend** | Supabase Edge Functions (Deno / TypeScript) |
-| **Deployment** | Netlify (Frontend) + Supabase (Backend) |
-| **Architecture** | 100% Serverless |
+| **Framework** | React 19 + Vite |
+| **Styling** | Tailwind CSS v4 (Alpha) |
+| **Icons** | Lucide-React |
+| **Animation** | CSS Keyframes + Smooth Transitions |
 
 ---
 
-## 🧮 The Scoring Engine
-Our proprietary algorithm calculates the **Developer IQ** using the following weighted dimensions:
-
-> [!TIP]
-> **Formula:** `Score = 200 * log10(Volume + Quality + Activity + Diversity + 1)`
-
-- **Volume (15%)**: Public Repositories & Followers.
-- **Quality (40%)**: Total Stars & Forks (Community impact).
-- **Activity (25%)**: Recent PushEvents within the last 30 days.
-- **Diversity (20%)**: Number of unique programming languages mastered.
-
----
-
-## 🚀 Local Development
-
-### 1. Clone & Install
-```bash
-git clone https://github.com/adityasing9/DevAnalyzer-Pro.git
-cd DevAnalyzer-Pro/frontend
-npm install
-```
-
-### 2. Environment Setup
-Create a `.env` file in the frontend folder:
-```env
-VITE_API_URL=https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1
-```
-
-### 3. Run
-```bash
-npm run dev
-```
-
----
-
-## 📂 Project Structure
-```text
-├── frontend/               # React + Tailwind Source
-│   ├── src/App.jsx         # Main Dashboard Logic
-│   └── src/index.css       # Premium Design Tokens
-├── backend/                # Original FastAPI Logic (for reference)
-└── supabase/               # Production Edge Function Source
-    └── functions/index.ts  # Live Serverless Logic
-```
-
----
-
-> [!IMPORTANT]
-> This project was built for high-performance profile auditing. It utilizes the GitHub API v3. For high-volume usage, ensure a `GITHUB_TOKEN` is configured in the Supabase Secret vault.
-
-Developed by **Aditya Sing** 🚀
+<div align="center">
+  <p><i>"Intelligence is not just about logic, it's about the beauty of the frontier."</i></p>
+  <sub>AI-Inspire | Developed by Aditya Sing</sub>
+</div>
