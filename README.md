@@ -7,46 +7,41 @@
 [![Stack: React + Supabase](https://img.shields.io/badge/Stack-React_%2B_Supabase-blue?style=for-the-badge)](#)
 [![Design: Minimalist Neon](https://img.shields.io/badge/Design-Minimalist_Neon-cyan?style=for-the-badge)](#)
 
-<<<<<<< HEAD
-## ✨ New in v2.0
-- **🎯 Career Readiness Dial**: Real-time percentage matching for specific career domains (Frontend, Backend, etc.).
-- 🧠 **AI Career Mentor**: Real-time professional guidance powered by Gemini 1.5 Flash.
-- 📉 **Growth Trajectory**: Historical tracking of your Developer IQ over time.
-- 📄 **Professional PDF Export**: One-click generation of verified skill audit reports.
-- 📈 **Logarithmic Scoring (v3.0)**: Fair, activity-weighted evaluation on a 0-1000 scale.
-- 🧬 **Tech DNA Mapping**: Deep-dive analysis of your primary and secondary tech stacks.
-- 🚀 **Precision Roadmap**: Actionable 3-step growth plans tailored to your specialization.
-=======
+---
+
+## 🔗 Live Access
+### [**🚀 Launch Live Demo**](https://soft-biscochitos-0b28e5.netlify.app/)
+### [**🌐 Cloud API Endpoint**](https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1/analyze-v3)
+
 ---
 
 </div>
 
-## ✨ New in v2.0
+## ✨ Key Features
 - **🎯 Career Readiness Dial**: Real-time percentage matching for specific career domains (Frontend, Backend, etc.).
+- **🧠 AI Career Mentor**: Real-time professional guidance powered by Google Gemini 1.5 Flash.
+- **📄 Professional PDF Export**: "Scrub & Bake" sanitized PDF generation for verified skill audit reports.
+- **📈 Logarithmic Scoring (v3.0)**: Fair, activity-weighted evaluation on a 0-1000 scale.
+- **🧬 Tech DNA Mapping**: Deep-dive analysis of your primary and secondary tech stacks.
+- **🚀 Precision Roadmap**: Actionable 3-step growth plans tailored to your specialization.
 - **📂 Flagship Project Audit**: Automatic detection and analysis of your most impactful repositories.
-- **🛣️ Precision Career Roadmap**: AI-generated 3-step growth plan tailored to your profile.
-- **🧬 Technological DNA**: High-fidelity visualization of your programming language landscape.
->>>>>>> origin/main
 - **⚡ Serverless Performance**: 100% Edge-computed analysis for near-instant results.
 
 ---
 
 ## 🏗️ System Architecture: **Serverless Monolith**
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 This project utilizes a **Modern Serverless Architecture**. Unlike traditional server-based applications, this platform is decentralized across edge providers to ensure 99.9% uptime and global scalability.
 
 ### **Architecture Workflow**
 ```mermaid
 graph TD
     User((User)) -->|HTTPS| Frontend[Netlify Edge CDN]
-    Frontend -->|React 19 UI| Browser(Browser)
+    Frontend -->|React UI| Browser(Browser)
     Browser -->|API Request| EdgeFn[Supabase Edge Functions]
     EdgeFn -->|Logic Execution| GitHubAPI[GitHub v3 API]
     GitHubAPI -->|JSON Data| EdgeFn
+    EdgeFn -->|AI Insight| Gemini[Gemini 1.5 Flash]
     EdgeFn -->|Processed Insights| Browser
 ```
 
@@ -57,18 +52,6 @@ graph TD
 
 ---
 
-<<<<<<< HEAD
-### 🛠️ Architecture (v3.0)
-- **Frontend**: React 19 + Vite + Tailwind CSS v4 + Recharts.
-- **Engine**: Supabase Edge Functions (Deno Runtime).
-- **Intelligence**: Google Gemini 1.5 Flash API.
-- **Persistence**: Supabase PostgreSQL (for historical growth tracking).
-- **Export Engine**: jsPDF + html2canvas.
-
----
-
-=======
->>>>>>> origin/main
 ## 🛠️ Technical Stack
 
 ### **Frontend Layer**
@@ -76,10 +59,11 @@ graph TD
 - **Vite**: Ultra-fast build tool and development server.
 - **Tailwind CSS v4**: Modular, utility-first styling for a premium "Modern Midnight" UI.
 - **Recharts**: High-performance SVG charts for data visualization.
+- **jsPDF + html2canvas**: Custom "Scrub & Bake" PDF engine for high-fidelity exports.
 
 ### **Backend & Compute Layer**
 - **Supabase Edge Functions**: Serverless Deno runtime for core logic.
-- **FastAPI (Reference)**: Original logic prototyped in Python for the scoring engine.
+- **Google Gemini 1.5 Flash**: AI-driven career mentorship and insights.
 - **Axios**: Robust HTTP client for secure API orchestration.
 
 ---
@@ -121,7 +105,6 @@ VITE_API_URL=https://uomkrgqgxbvdmvcikdhh.supabase.co/functions/v1
 
 ---
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
+<div align="center">
+  <p>DevAnalyzer Pro × Aditya Sing Platform</p>
+</div>

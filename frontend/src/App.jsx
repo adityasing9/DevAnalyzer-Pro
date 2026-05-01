@@ -31,119 +31,144 @@ function App() {
   const [generatingAi, setGeneratingAi] = useState(false)
 
   const downloadPDF = async () => {
-    // Inject a global override BEFORE html2canvas runs to neutralize all oklch/oklab
-    // Tailwind v4 uses CSS variables with oklch internally; this kills them all.
-    const safeStyleOverride = document.createElement('style')
-    safeStyleOverride.id = '__pdf-safe-override'
-    safeStyleOverride.textContent = `
-      *, *::before, *::after {
-        --tw-bg-opacity: 1 !important;
-        color-scheme: light !important;
-      }
-      /* Override every possible oklch Tailwind var to safe hex */
-      :root {
-        --color-cyan-400: #22d3ee !important;
-        --color-cyan-500: #06b6d4 !important;
-        --color-blue-600: #2563eb !important;
-        --color-slate-950: #020617 !important;
-        --color-slate-900: #0f172a !important;
-        --color-slate-800: #1e293b !important;
-        --color-slate-400: #94a3b8 !important;
-        --color-slate-300: #cbd5e1 !important;
-        --color-slate-500: #64748b !important;
-        --color-slate-600: #475569 !important;
-        --color-white: #ffffff !important;
-        --color-red-400: #f87171 !important;
-        --color-green-500: #22c55e !important;
-        --color-purple-400: #c084fc !important;
-        --color-yellow-400: #facc15 !important;
-      }
-    `
-    document.head.appendChild(safeStyleOverride)
+    // Step 1: Build color map by resolving through the browser BEFORE cloning
+    const colorMap = {}
+    const tmpEl = document.createElement('div')
+    tmpEl.style.cssText = 'display:none;position:absolute;'
+    document.body.appendChild(tmpEl)
+
+    const colorValues = new Set()
+    Array.from(document.styleSheets).forEach(sheet => {
+      try {
+        Array.from(sheet.cssRules || []).forEach(rule => {
+          const matches = (rule.cssText || '').matchAll(/(?:oklch|oklab)\([^)]+\)/g)
+          for (const m of matches) colorValues.add(m[0])
+        })
+      } catch (_) {}
+    })
+
+    for (const col of colorValues) {
+      try {
+        tmpEl.style.color = col
+        const rgb = getComputedStyle(tmpEl).color
+        const m = rgb.match(/\d+/g)
+        if (m && m.length >= 3) {
+          const hex = '#' + [m[0],m[1],m[2]].map(v => parseInt(v).toString(16).padStart(2,'0')).join('')
+          colorMap[col] = hex
+        }
+      } catch (_) {}
+    }
+    document.body.removeChild(tmpEl)
 
     try {
+
       const element = document.getElementById('dashboard-report')
       if (!element) throw new Error('Report element not found')
 
-      // Inline ALL computed styles as hex before html2canvas sees the DOM
-      const allEls = element.querySelectorAll('*')
-      const colorProps = ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke']
-
-      const toHex = (color) => {
-        if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return null
-        if (color.startsWith('#')) return color
-        if (color.includes('okl') || color.includes('color(')) return null // will use override
-        const m = color.match(/\d+/g)
-        if (!m || m.length < 3) return null
-        const r = Math.min(255, +m[0]).toString(16).padStart(2, '0')
-        const g = Math.min(255, +m[1]).toString(16).padStart(2, '0')
-        const b = Math.min(255, +m[2]).toString(16).padStart(2, '0')
-        return `#${r}${g}${b}`
-      }
-
-      // Force explicit pixel dimensions on chart wrappers
-      element.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
-        el.style.width = '760px'
-        el.style.height = '300px'
-        el.style.minWidth = '760px'
-        el.style.minHeight = '300px'
-      })
-
-      // Bake computed colors onto every element as inline styles
-      allEls.forEach(el => {
-        try {
-          const cs = getComputedStyle(el)
-          colorProps.forEach(prop => {
-            const val = cs.getPropertyValue(prop === 'backgroundColor' ? 'background-color' : prop)
-            if (!val) return
-            if (val.includes('okl') || val.includes('color(')) {
-              // Force known-safe fallbacks based on element hints
-              const tag = el.tagName?.toLowerCase()
-              if (prop === 'backgroundColor') el.style.setProperty('background-color', '#0f172a', 'important')
-              else if (prop === 'color') el.style.setProperty('color', '#cbd5e1', 'important')
-            } else {
-              const hex = toHex(val)
-              if (hex) {
-                const cssProp = prop === 'backgroundColor' ? 'background-color' : prop
-                el.style.setProperty(cssProp, hex, 'important')
-              }
-            }
-          })
-        } catch (_) {}
-      })
-
       const canvas = await html2canvas(element, {
         scale: 2,
-        backgroundColor: '#020617',
+        backgroundColor: '#ffffff', // Set main background to white
         useCORS: true,
         allowTaint: true,
         logging: false,
-        windowWidth: 1300,
+        windowWidth: 1400,
         onclone: (clonedDoc) => {
-          const clonedEl = clonedDoc.getElementById('dashboard-report')
-          if (!clonedEl) return
-          clonedEl.style.width = '1200px'
-          clonedEl.style.padding = '40px'
-          clonedEl.style.backgroundColor = '#020617'
+          // Inject a Light Theme PDF override style
+          const lightThemeStyle = clonedDoc.createElement('style')
+          lightThemeStyle.textContent = `
+            #dashboard-report { background-color: #ffffff !important; }
+            .text-white, .text-slate-300, .text-slate-400 { color: #1e293b !important; }
+            .text-slate-500 { color: #475569 !important; }
+            .bg-slate-900\\/50, .bg-white\\/5 { background-color: #f8fafc !important; }
+            .border-white\\/5, .border-white\\/10 { border-color: #e2e8f0 !important; }
+            text.recharts-text { fill: #475569 !important; }
+            img.border-cyan-500\\/30 { border-color: #bae6fd !important; }
+            circle[stroke="currentColor"] { color: #f1f5f9 !important; }
+            circle[strokeDasharray] { color: #0891b2 !important; }
+          `
+          clonedDoc.head.appendChild(lightThemeStyle)
 
-          // Nuclear option: strip all stylesheets, rely only on inlined styles
-          clonedDoc.querySelectorAll('style, link[rel="stylesheet"]').forEach(t => t.remove())
+          // Replace oklch/oklab values in all <style> tags using our pre-resolved map
+          // This keeps all layout CSS (grid, flex, spacing) intact
+          clonedDoc.querySelectorAll('style').forEach(tag => {
+            let css = tag.textContent
+            for (const [col, hex] of Object.entries(colorMap)) {
+              css = css.split(col).join(hex)
+            }
+            // Strip color-mix completely, fallback to transparent
+            css = css.replace(/color-mix\([^)]+\)/g, 'transparent')
+            // Strip "in oklab" from gradients
+            css = css.replace(/in\s+oklab,?/g, '')
+            css = css.replace(/in\s+oklch,?/g, '')
+            // Also regex-catch any remaining oklch/oklab not in the map
+            css = css.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
+            tag.textContent = css
+          })
 
-          // In the clone, re-scrub anything still using oklch
+          // Scrub inline styles and SVG attributes, and map dark colors to light
           clonedDoc.querySelectorAll('*').forEach(el => {
             const style = el.getAttribute('style') || ''
             if (style.includes('okl') || style.includes('color(')) {
-              el.style.removeProperty('color')
-              el.style.removeProperty('background-color')
-              el.style.setProperty('color', '#cbd5e1', 'important')
-              el.style.setProperty('background-color', '#0f172a', 'important')
+              let newStyle = style
+              for (const [col, hex] of Object.entries(colorMap)) {
+                newStyle = newStyle.split(col).join(hex)
+              }
+              newStyle = newStyle.replace(/color-mix\([^)]+\)/g, 'transparent')
+              newStyle = newStyle.replace(/in\s+oklab,?/g, '')
+              newStyle = newStyle.replace(/in\s+oklch,?/g, '')
+              newStyle = newStyle.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
+              el.setAttribute('style', newStyle)
             }
+
+            // Map inline dark background colors to light
+            const bg = el.style.backgroundColor
+            if (bg === 'rgb(15, 23, 42)' || bg === '#0f172a') el.style.backgroundColor = '#f8fafc'
+            if (bg === 'rgb(30, 41, 59)' || bg === '#1e293b') el.style.backgroundColor = '#f1f5f9'
+            if (bg === 'rgb(8, 51, 68)' || bg === '#083344') { el.style.backgroundColor = '#e0f2fe'; el.style.color = '#0369a1' }
+            if (bg === 'rgb(2, 6, 23)' || bg === '#020617') el.style.backgroundColor = '#ffffff'
+            if (el.style.background && el.style.background.includes('linear-gradient')) {
+              el.style.background = '#f0fdfa'
+            }
+            if (el.style.color && el.style.color.includes('255')) {
+              if (el.style.color.includes('0.05') || el.style.color.includes('0.1')) {
+                el.style.color = '#e2e8f0'
+              }
+            }
+
+            // Scrub SVG fill/stroke
+            ['fill', 'stroke'].forEach(attr => {
+              const val = el.getAttribute(attr)
+              if (val && (val.includes('okl') || val.includes('color('))) {
+                let newVal = val
+                for (const [col, hex] of Object.entries(colorMap)) {
+                  newVal = newVal.split(col).join(hex)
+                }
+                newVal = newVal.replace(/color-mix\([^)]+\)/g, 'transparent')
+                newVal = newVal.replace(/in\s+oklab,?/g, '')
+                newVal = newVal.replace(/in\s+oklch,?/g, '')
+                newVal = newVal.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
+                el.setAttribute(attr, newVal)
+              }
+            })
           })
 
-          // Re-fix chart dimensions in clone
+          // Fix report container width for PDF
+          const reportEl = clonedDoc.getElementById('dashboard-report')
+          if (reportEl) {
+            reportEl.style.width = '1400px'
+            reportEl.style.padding = '48px'
+            reportEl.style.backgroundColor = '#ffffff'
+            reportEl.style.margin = '0 auto'
+          }
+
+          // Fix chart dimensions
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
-            el.style.width = '760px'
+            el.style.width = '100%'
             el.style.height = '300px'
+          })
+          
+          clonedDoc.querySelectorAll('.recharts-wrapper svg').forEach(svg => {
+            svg.setAttribute('width', '100%')
           })
         }
       })
@@ -158,11 +183,9 @@ function App() {
     } catch (err) {
       console.error('CRITICAL PDF ERROR:', err)
       alert(`Export Failed: ${err.message}`)
-    } finally {
-      // Always clean up the override style tag
-      document.getElementById('__pdf-safe-override')?.remove()
     }
   }
+
 
   const generateAiMentor = async (data) => {
     setGeneratingAi(true)
