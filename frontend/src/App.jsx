@@ -84,7 +84,7 @@ function App() {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        windowWidth: 1400,
+        windowWidth: 800,
         onclone: (clonedDoc) => {
           // 1. PRODUCTION STABILIZATION: Replace <link> with pre-fetched CSS
           clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(l => l.remove());
@@ -159,7 +159,7 @@ function App() {
           // 4. LAYOUT REPAIR: Fix dimensions for A4 capture
           const reportEl = clonedDoc.getElementById('dashboard-report');
           if (reportEl) {
-            reportEl.style.width = '1400px';
+            reportEl.style.width = '800px';
             reportEl.style.padding = '48px';
             reportEl.style.backgroundColor = '#ffffff';
             reportEl.style.margin = '0 auto';
@@ -171,12 +171,16 @@ function App() {
           });
           
           clonedDoc.querySelectorAll('.recharts-wrapper svg').forEach(svg => {
+            const w = svg.getAttribute('width') || '800';
+            const h = svg.getAttribute('height') || '300';
+            svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
             svg.setAttribute('width', '100%');
+            svg.setAttribute('height', 'auto');
           });
 
           // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
           if (reportEl) {
-            const pageHeightInPx = 1400 * (297 / 210);
+            const pageHeightInPx = 800 * (297 / 210);
             const breakAvoids = Array.from(clonedDoc.querySelectorAll('.pdf-break-avoid'));
             
             breakAvoids.forEach(el => {
