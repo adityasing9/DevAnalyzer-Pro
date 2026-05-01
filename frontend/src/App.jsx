@@ -194,7 +194,7 @@ function App() {
               if (bottomPageNumber > pageNumber && elRect.height < pageHeightInPx) {
                 const cutLine = (pageNumber + 1) * pageHeightInPx;
                 // Add enough margin-top to push the element entirely past the cut line
-                const spaceNeeded = cutLine - yPos + 20; // 20px extra buffer
+                const spaceNeeded = cutLine - yPos + 100; // 100px extra buffer for top of new page
                 const currentMarginTop = parseFloat(window.getComputedStyle(el).marginTop || 0);
                 el.style.marginTop = `${currentMarginTop + spaceNeeded}px`;
               }
