@@ -354,7 +354,7 @@ function App() {
                         />
                       </div>
                       <h2 className="text-4xl font-black text-white mb-2">{report.name || report.github_username}</h2>
-                      <p className="text-cyan-400 font-mono tracking-wider mb-6">@{report.github_username.toUpperCase()}</p>
+                      <p className="text-cyan-400 font-mono tracking-wider mb-6">@{(report.github_username || username || 'User').toUpperCase()}</p>
                       <p className="text-slate-400 text-center italic max-w-lg">"{report.bio || 'Exploring the boundaries of technology.'}"</p>
                     </div>
                   </div>

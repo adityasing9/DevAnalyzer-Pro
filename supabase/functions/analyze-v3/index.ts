@@ -110,7 +110,6 @@ Deno.serve(async (req) => {
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
-
   } catch (error) {
     console.error(`[FATAL ERROR] ${error.message}`);
     return new Response(JSON.stringify({ 
@@ -122,7 +121,7 @@ Deno.serve(async (req) => {
         insights: [],
         roadmap: []
     }), {
-      status: 200, 
+      status: 400, 
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
