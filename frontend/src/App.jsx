@@ -101,7 +101,7 @@ function App() {
             .text-white, .text-slate-300, .text-slate-400 { color: #1e293b !important; }
             .text-slate-500 { color: #475569 !important; }
             .text-cyan-400, .text-cyan-300, .text-cyan-500 { color: #0891b2 !important; }
-            .bg-slate-900\\/50, .bg-white\\/5 { background-color: #f8fafc !important; }
+            .bg-slate-800, .bg-slate-900, .bg-slate-900\\/50, .bg-white\\/5 { background-color: #f8fafc !important; }
             .bg-\\[\\#020617\\] { background-color: #ffffff !important; }
             .border-white\\/5, .border-white\\/10 { border-color: #e2e8f0 !important; }
             text.recharts-text { fill: #475569 !important; }
@@ -337,13 +337,13 @@ function App() {
         {/* Dashboard Architecture */}
         {report && (
           <div id="dashboard-report" className="space-y-8 p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in zoom-in-95 duration-700">
+            <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in zoom-in-95 duration-700">
               
               {/* Sidebar: Profile & Score */}
-              <div className="lg:col-span-4 space-y-8">
+              <div className="w-full lg:w-1/3 flex flex-col gap-8">
                 {/* Profile Card */}
                 <div className="pdf-break-avoid bg-slate-900/50 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-10 relative overflow-hidden group">
-                  <div className="border border-white/10 rounded-3xl p-8" style={{ backgroundColor: '#1e293b' }}>
+                  <div className="border border-white/10 rounded-3xl p-8 bg-slate-800">
                     <div className="flex flex-col items-center">
                       <div className="relative mb-6">
                         <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full" />
@@ -360,16 +360,16 @@ function App() {
                   </div>
 
                   {/* IQ Score Card */}
-                  <div className="pdf-break-avoid mt-8 border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center" style={{ backgroundColor: '#1e293b' }}>
+                  <div className="pdf-break-avoid border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center bg-slate-800">
                     <div className="text-slate-500 uppercase tracking-[0.3em] text-[10px] font-bold mb-4">Core Developer IQ</div>
                     <div className="text-8xl font-black text-white tracking-tighter mb-4">{report.score}</div>
-                    <div className="h-2 w-48 rounded-full overflow-hidden" style={{ backgroundColor: '#0f172a' }}>
+                    <div className="h-2 w-48 rounded-full overflow-hidden bg-slate-900">
                       <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style={{ width: `${Math.min((report.score/1000)*100, 100)}%` }} />
                     </div>
                   </div>
 
                   {/* Readiness Dial */}
-                  <div className="pdf-break-avoid mt-8 border border-white/5 rounded-3xl p-10 flex flex-col items-center" style={{ backgroundColor: '#0f172a' }}>
+                  <div className="pdf-break-avoid border border-white/5 rounded-3xl p-10 flex flex-col items-center bg-slate-900">
                     <h3 className="text-lg font-bold text-white mb-8 w-full">Career Readiness</h3>
                     <div className="relative w-40 h-40 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90">
@@ -388,28 +388,28 @@ function App() {
               </div>
 
               {/* Main Content: Skills & Insights */}
-              <div className="lg:col-span-8 space-y-8">
+              <div className="w-full lg:w-2/3 flex flex-col gap-8">
                 
                 {/* Top Row: Specializations & Insights */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="pdf-break-avoid border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
+                <div className="pdf-break-avoid flex flex-col md:flex-row gap-8 w-full">
+                  <div className="border border-white/5 rounded-3xl p-8 bg-slate-900 w-full md:w-1/2">
                     <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                       <Code2 className="w-6 h-6 text-cyan-400" /> Inferred Specializations
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {(report.specializations || report.inferred_domains || []).map(spec => (
-                        <span key={spec} className="px-4 py-2 border border-cyan-500/20 rounded-xl text-xs font-bold text-cyan-300" style={{ backgroundColor: '#083344' }}>
+                        <span key={spec} className="px-4 py-2 border border-cyan-500/20 rounded-xl text-xs font-bold text-cyan-300 bg-cyan-900/30">
                           {spec}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="pdf-break-avoid border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
+                  <div className="border border-white/5 rounded-3xl p-8 bg-slate-900 w-full md:w-1/2">
                     <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                       <Zap className="w-6 h-6 text-yellow-400" /> Cognitive Insights
                     </h3>
-                    <div className="space-y-4">
+                    <div className="flex flex-col gap-4">
                       {(report.insights || []).map((insight, i) => (
                         <div key={i} className="flex gap-4 items-start">
                           <div className="w-1.5 h-1.5 rounded-full mt-2" style={{ backgroundColor: '#facc15' }} />
@@ -421,7 +421,7 @@ function App() {
                 </div>
 
                 {/* Chart: Tech DNA */}
-                <div className="pdf-break-avoid border border-white/5 rounded-[2.5rem] p-10" style={{ backgroundColor: '#0f172a' }}>
+                <div className="pdf-break-avoid border border-white/5 rounded-[2.5rem] p-10 bg-slate-900">
                   <h3 className="text-lg font-bold text-white mb-10 flex items-center gap-3">
                     <PieChart className="w-6 h-6 text-purple-400" /> Technological DNA
                   </h3>
@@ -437,13 +437,13 @@ function App() {
                   </div>
                 </div>
 
-                <div className="pdf-break-avoid border border-white/10 rounded-3xl p-10" style={{ backgroundColor: '#0f172a' }}>
+                <div className="pdf-break-avoid border border-white/10 rounded-3xl p-10 bg-slate-900">
                   <h3 className="text-lg font-bold text-white mb-8 flex items-center gap-3">
                     <GitBranch className="w-6 h-6 text-green-400" /> Core Repository Audit
                   </h3>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     {report.top_repos && report.top_repos.length > 0 ? report.top_repos.map(repo => (
-                      <div key={repo.name} className="p-6 border border-white/5 rounded-2xl flex items-center justify-between" style={{ backgroundColor: '#1e293b' }}>
+                      <div key={repo.name} className="p-6 border border-white/5 rounded-2xl flex items-center justify-between bg-slate-800">
                         <div>
                           <h4 className="text-white font-bold mb-1">{repo.name}</h4>
                           <p className="text-xs text-slate-400">{repo.description || 'No description provided'}</p>
@@ -462,11 +462,11 @@ function App() {
                 </div>
 
                 {/* Strategic Roadmap */}
-                <div className="pdf-break-avoid border border-cyan-500/20 rounded-[2.5rem] p-10" style={{ background: 'linear-gradient(to bottom right, rgba(8, 145, 178, 0.1), rgba(15, 23, 42, 0.5))' }}>
+                <div className="pdf-break-avoid border border-cyan-500/20 rounded-[2.5rem] p-10 bg-slate-900">
                   <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
                     <TrendingUp className="w-8 h-8 text-[#22d3ee]" /> Precision Career Path
                   </h3>
-                  <div className="space-y-8 relative">
+                  <div className="flex flex-col gap-8 relative">
                     <div className="absolute left-[15px] top-2 bottom-2 w-px bg-cyan-500/20" />
                     {report.roadmap?.map((step, i) => (
                       <div key={i} className="flex gap-8 relative group">
@@ -484,7 +484,7 @@ function App() {
                 </div>
 
                 {/* AI Mentorship Section */}
-                <div className="pdf-break-avoid bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-10" style={{ background: '#0f172a' }}>
+                <div className="pdf-break-avoid bg-slate-900 border border-white/10 rounded-[2.5rem] p-10">
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                     <Zap className="w-6 h-6 text-[#a855f7]" /> AI Career Mentor
                   </h3>
