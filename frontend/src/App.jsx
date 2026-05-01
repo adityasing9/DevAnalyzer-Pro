@@ -61,19 +61,40 @@ function App() {
     document.body.removeChild(tmpEl)
 
     try {
-
       const element = document.getElementById('dashboard-report')
       if (!element) throw new Error('Report element not found')
 
+      // Pre-fetch external CSS to avoid html2canvas crashing on oklch in Netlify production
+      let externalCss = '';
+      try {
+        const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
+        for (const link of links) {
+          if (link.href) {
+            const res = await fetch(link.href);
+            externalCss += await res.text() + '\n';
+          }
+        }
+      } catch (err) {
+        console.warn("Could not prefetch external CSS", err);
+      }
+
       const canvas = await html2canvas(element, {
         scale: 2,
-        backgroundColor: '#ffffff', // Set main background to white
+        backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
         logging: false,
         windowWidth: 1400,
         onclone: (clonedDoc) => {
-          // Inject a Light Theme PDF override style
+          // 1. PRODUCTION STABILIZATION: Replace <link> with pre-fetched CSS
+          clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(l => l.remove());
+          if (externalCss) {
+            const extStyle = clonedDoc.createElement('style');
+            extStyle.textContent = externalCss;
+            clonedDoc.head.appendChild(extStyle);
+          }
+
+          // 2. THEME OVERRIDES: Force light mode aesthetics
           const lightThemeStyle = clonedDoc.createElement('style')
           lightThemeStyle.textContent = `
             #dashboard-report { background-color: #ffffff !important; }
@@ -90,118 +111,97 @@ function App() {
           `
           clonedDoc.head.appendChild(lightThemeStyle)
 
-          // Replace oklch/oklab values in all <style> tags using our pre-resolved map
-          // This keeps all layout CSS (grid, flex, spacing) intact
+          // 3. COLOR SANITIZATION: Replace all oklch/oklab with resolved HEX
           clonedDoc.querySelectorAll('style').forEach(tag => {
-            let css = tag.textContent
+            let css = tag.textContent;
             for (const [col, hex] of Object.entries(colorMap)) {
-              css = css.split(col).join(hex)
+              css = css.split(col).join(hex);
             }
-            // Strip color-mix completely, fallback to transparent
             css = css.replace(/color-mix\([^)]+\)/g, 'transparent')
-            // Strip "in oklab" from gradients
-            css = css.replace(/in\s+oklab,?/g, '')
-            css = css.replace(/in\s+oklch,?/g, '')
-            // Also regex-catch any remaining oklch/oklab not in the map
-            css = css.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
-            tag.textContent = css
-          })
+                     .replace(/in\s+oklab,?/g, '')
+                     .replace(/in\s+oklch,?/g, '')
+                     .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
+            tag.textContent = css;
+          });
 
-          // Scrub inline styles and SVG attributes, and map dark colors to light
           clonedDoc.querySelectorAll('*').forEach(el => {
-            const style = el.getAttribute('style') || ''
+            // Scrub inline styles
+            const style = el.getAttribute('style') || '';
             if (style.includes('okl') || style.includes('color(')) {
-              let newStyle = style
+              let newStyle = style;
               for (const [col, hex] of Object.entries(colorMap)) {
-                newStyle = newStyle.split(col).join(hex)
+                newStyle = newStyle.split(col).join(hex);
               }
               newStyle = newStyle.replace(/color-mix\([^)]+\)/g, 'transparent')
-              newStyle = newStyle.replace(/in\s+oklab,?/g, '')
-              newStyle = newStyle.replace(/in\s+oklch,?/g, '')
-              newStyle = newStyle.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
-              el.setAttribute('style', newStyle)
+                                 .replace(/in\s+oklab,?/g, '')
+                                 .replace(/in\s+oklch,?/g, '')
+                                 .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
+              el.setAttribute('style', newStyle);
             }
 
-            // Map inline dark background colors to light
-            const bg = el.style.backgroundColor
-            if (bg === 'rgb(15, 23, 42)' || bg === '#0f172a') el.style.backgroundColor = '#f8fafc'
-            if (bg === 'rgb(30, 41, 59)' || bg === '#1e293b') el.style.backgroundColor = '#f1f5f9'
-            if (bg === 'rgb(8, 51, 68)' || bg === '#083344') { el.style.backgroundColor = '#e0f2fe'; el.style.color = '#0369a1' }
-            if (bg === 'rgb(2, 6, 23)' || bg === '#020617') el.style.backgroundColor = '#ffffff'
-            if (el.style.background && el.style.background.includes('linear-gradient')) {
-              el.style.background = '#f0fdfa'
-            }
-            if (el.style.color && el.style.color.includes('255')) {
-              if (el.style.color.includes('0.05') || el.style.color.includes('0.1')) {
-                el.style.color = '#e2e8f0'
-              }
-            }
-
-            // Scrub SVG fill/stroke
+            // Scrub SVG attributes
             ['fill', 'stroke'].forEach(attr => {
-              const val = el.getAttribute(attr)
+              const val = el.getAttribute(attr);
               if (val && (val.includes('okl') || val.includes('color('))) {
-                let newVal = val
+                let newVal = val;
                 for (const [col, hex] of Object.entries(colorMap)) {
-                  newVal = newVal.split(col).join(hex)
+                  newVal = newVal.split(col).join(hex);
                 }
                 newVal = newVal.replace(/color-mix\([^)]+\)/g, 'transparent')
-                newVal = newVal.replace(/in\s+oklab,?/g, '')
-                newVal = newVal.replace(/in\s+oklch,?/g, '')
-                newVal = newVal.replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1')
-                el.setAttribute(attr, newVal)
+                               .replace(/in\s+oklab,?/g, '')
+                               .replace(/in\s+oklch,?/g, '')
+                               .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
+                el.setAttribute(attr, newVal);
               }
-            })
-          })
+            });
+          });
 
-          // Fix report container width for PDF
-          const reportEl = clonedDoc.getElementById('dashboard-report')
+          // 4. LAYOUT REPAIR: Fix dimensions for A4 capture
+          const reportEl = clonedDoc.getElementById('dashboard-report');
           if (reportEl) {
-            reportEl.style.width = '1400px'
-            reportEl.style.padding = '48px'
-            reportEl.style.backgroundColor = '#ffffff'
-            reportEl.style.margin = '0 auto'
+            reportEl.style.width = '1400px';
+            reportEl.style.padding = '48px';
+            reportEl.style.backgroundColor = '#ffffff';
+            reportEl.style.margin = '0 auto';
           }
 
-          // Fix chart dimensions
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
-            el.style.width = '100%'
-            el.style.height = '300px'
-          })
+            el.style.width = '100%';
+            el.style.height = '300px';
+          });
           
           clonedDoc.querySelectorAll('.recharts-wrapper svg').forEach(svg => {
-            svg.setAttribute('width', '100%')
-          })
+            svg.setAttribute('width', '100%');
+          });
 
-          // --- PAGE BREAK AVOIDANCE LOGIC ---
+          // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
           if (reportEl) {
-            // A4 page aspect ratio is 297/210. With a container width of 1400px, 
-            // one "PDF page" corresponds to ~1980 DOM pixels in height.
             const pageHeightInPx = 1400 * (297 / 210);
+            const breakAvoids = Array.from(clonedDoc.querySelectorAll('.pdf-break-avoid'));
             
-            const breakAvoids = clonedDoc.querySelectorAll('.pdf-break-avoid');
             breakAvoids.forEach(el => {
               const containerRect = reportEl.getBoundingClientRect();
               const elRect = el.getBoundingClientRect();
-              // Calculate Y position relative to the container
               const yPos = elRect.top - containerRect.top;
               const elBottomPos = yPos + elRect.height;
               
               const pageNumber = Math.floor(yPos / pageHeightInPx);
               const bottomPageNumber = Math.floor(elBottomPos / pageHeightInPx);
               
-              // If the element starts on one page and ends on another, it spans a cut line
               if (bottomPageNumber > pageNumber && elRect.height < pageHeightInPx) {
                 const cutLine = (pageNumber + 1) * pageHeightInPx;
-                // Add enough margin-top to push the element entirely past the cut line
-                const spaceNeeded = cutLine - yPos + 100; // 100px extra buffer for top of new page
-                const currentMarginTop = parseFloat(window.getComputedStyle(el).marginTop || 0);
-                el.style.marginTop = `${currentMarginTop + spaceNeeded}px`;
+                const spaceNeeded = cutLine - yPos + 60; // Clean top-margin for new page
+                
+                const spacer = clonedDoc.createElement('div');
+                spacer.style.height = `${spaceNeeded}px`;
+                spacer.style.width = '100%';
+                spacer.style.clear = 'both';
+                el.parentNode.insertBefore(spacer, el);
               }
             });
           }
         }
-      })
+      });
 
       const pdf = new jsPDF('p', 'mm', 'a4')
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
@@ -212,11 +212,9 @@ function App() {
       let heightLeft = imgHeight
       let position = 0
 
-      // Add first page
       pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight)
       heightLeft -= pageHeight
 
-      // Add subsequent pages if the content is taller than A4
       while (heightLeft > 0) {
         position = heightLeft - imgHeight
         pdf.addPage()
