@@ -31,9 +31,86 @@ function App() {
   const [generatingAi, setGeneratingAi] = useState(false)
 
   const downloadPDF = async () => {
+    // Inject a global override BEFORE html2canvas runs to neutralize all oklch/oklab
+    // Tailwind v4 uses CSS variables with oklch internally; this kills them all.
+    const safeStyleOverride = document.createElement('style')
+    safeStyleOverride.id = '__pdf-safe-override'
+    safeStyleOverride.textContent = `
+      *, *::before, *::after {
+        --tw-bg-opacity: 1 !important;
+        color-scheme: light !important;
+      }
+      /* Override every possible oklch Tailwind var to safe hex */
+      :root {
+        --color-cyan-400: #22d3ee !important;
+        --color-cyan-500: #06b6d4 !important;
+        --color-blue-600: #2563eb !important;
+        --color-slate-950: #020617 !important;
+        --color-slate-900: #0f172a !important;
+        --color-slate-800: #1e293b !important;
+        --color-slate-400: #94a3b8 !important;
+        --color-slate-300: #cbd5e1 !important;
+        --color-slate-500: #64748b !important;
+        --color-slate-600: #475569 !important;
+        --color-white: #ffffff !important;
+        --color-red-400: #f87171 !important;
+        --color-green-500: #22c55e !important;
+        --color-purple-400: #c084fc !important;
+        --color-yellow-400: #facc15 !important;
+      }
+    `
+    document.head.appendChild(safeStyleOverride)
+
     try {
       const element = document.getElementById('dashboard-report')
       if (!element) throw new Error('Report element not found')
+
+      // Inline ALL computed styles as hex before html2canvas sees the DOM
+      const allEls = element.querySelectorAll('*')
+      const colorProps = ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke']
+
+      const toHex = (color) => {
+        if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return null
+        if (color.startsWith('#')) return color
+        if (color.includes('okl') || color.includes('color(')) return null // will use override
+        const m = color.match(/\d+/g)
+        if (!m || m.length < 3) return null
+        const r = Math.min(255, +m[0]).toString(16).padStart(2, '0')
+        const g = Math.min(255, +m[1]).toString(16).padStart(2, '0')
+        const b = Math.min(255, +m[2]).toString(16).padStart(2, '0')
+        return `#${r}${g}${b}`
+      }
+
+      // Force explicit pixel dimensions on chart wrappers
+      element.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
+        el.style.width = '760px'
+        el.style.height = '300px'
+        el.style.minWidth = '760px'
+        el.style.minHeight = '300px'
+      })
+
+      // Bake computed colors onto every element as inline styles
+      allEls.forEach(el => {
+        try {
+          const cs = getComputedStyle(el)
+          colorProps.forEach(prop => {
+            const val = cs.getPropertyValue(prop === 'backgroundColor' ? 'background-color' : prop)
+            if (!val) return
+            if (val.includes('okl') || val.includes('color(')) {
+              // Force known-safe fallbacks based on element hints
+              const tag = el.tagName?.toLowerCase()
+              if (prop === 'backgroundColor') el.style.setProperty('background-color', '#0f172a', 'important')
+              else if (prop === 'color') el.style.setProperty('color', '#cbd5e1', 'important')
+            } else {
+              const hex = toHex(val)
+              if (hex) {
+                const cssProp = prop === 'backgroundColor' ? 'background-color' : prop
+                el.style.setProperty(cssProp, hex, 'important')
+              }
+            }
+          })
+        } catch (_) {}
+      })
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -41,73 +118,49 @@ function App() {
         useCORS: true,
         allowTaint: true,
         logging: false,
+        windowWidth: 1300,
         onclone: (clonedDoc) => {
-          // Neural Style Proxy: Overwrite getComputedStyle in the cloned document
-          // html2canvas uses this internally. By intercepting it, we can force HEX colors.
-          const originalGetComputedStyle = clonedDoc.defaultView.getComputedStyle;
-          clonedDoc.defaultView.getComputedStyle = function(el) {
-            const style = originalGetComputedStyle.call(clonedDoc.defaultView, el);
-            
-            const toHex = (color) => {
-              if (!color || typeof color !== 'string' || color === 'transparent' || color.includes('rgba(0, 0, 0, 0)')) return color;
-              if (color.includes('okl')) return '#38bdf8'; // Direct hex fallback
-              
-              const rgb = color.match(/\d+/g);
-              if (!rgb || rgb.length < 3) return color;
-              
-              const r = parseInt(rgb[0]).toString(16).padStart(2, '0');
-              const g = parseInt(rgb[1]).toString(16).padStart(2, '0');
-              const b = parseInt(rgb[2]).toString(16).padStart(2, '0');
-              return `#${r}${g}${b}`;
-            };
+          const clonedEl = clonedDoc.getElementById('dashboard-report')
+          if (!clonedEl) return
+          clonedEl.style.width = '1200px'
+          clonedEl.style.padding = '40px'
+          clonedEl.style.backgroundColor = '#020617'
 
-            // Proxy the style object to intercept color properties
-            return new Proxy(style, {
-              get(target, prop) {
-                const val = target[prop];
-                if (typeof prop === 'string' && (prop.toLowerCase().includes('color') || prop === 'fill' || prop === 'stroke')) {
-                   return toHex(val);
-                }
-                return val;
-              }
-            });
-          };
+          // Nuclear option: strip all stylesheets, rely only on inlined styles
+          clonedDoc.querySelectorAll('style, link[rel="stylesheet"]').forEach(t => t.remove())
 
-          const report = clonedDoc.getElementById('dashboard-report')
-          if (report) {
-            report.style.width = '1200px';
-            report.style.padding = '60px';
-            report.style.backgroundColor = '#020617';
-            report.classList.add('capture-mode')
-            
-            // Remove all stylesheets to force reliance on our proxy/inline styles if needed
-            // but usually the proxy is enough.
-            const links = clonedDoc.getElementsByTagName('link');
-            const styles = clonedDoc.getElementsByTagName('style');
-            while(links[0]) links[0].parentNode.removeChild(links[0]);
-            while(styles[0]) styles[0].parentNode.removeChild(styles[0]);
+          // In the clone, re-scrub anything still using oklch
+          clonedDoc.querySelectorAll('*').forEach(el => {
+            const style = el.getAttribute('style') || ''
+            if (style.includes('okl') || style.includes('color(')) {
+              el.style.removeProperty('color')
+              el.style.removeProperty('background-color')
+              el.style.setProperty('color', '#cbd5e1', 'important')
+              el.style.setProperty('background-color', '#0f172a', 'important')
+            }
+          })
 
-            // Manually set some critical layout styles that might have been lost
-            report.querySelectorAll('*').forEach(el => {
-               if (el.classList.contains('recharts-responsive-container')) {
-                  el.style.width = '1000px';
-                  el.style.height = '400px';
-               }
-            });
-          }
+          // Re-fix chart dimensions in clone
+          clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
+            el.style.width = '760px'
+            el.style.height = '300px'
+          })
         }
       })
 
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgData = canvas.toDataURL('image/jpeg', 1.0)
+      const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-      
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`${report.github_username}_strategic_audit.pdf`)
+      pdf.save(`${username || 'developer'}_audit.pdf`)
+
     } catch (err) {
       console.error('CRITICAL PDF ERROR:', err)
-      alert(`Export Failed: ${err.message}. This is likely due to modern CSS parsing. Please try again or use a different browser.`)
+      alert(`Export Failed: ${err.message}`)
+    } finally {
+      // Always clean up the override style tag
+      document.getElementById('__pdf-safe-override')?.remove()
     }
   }
 
@@ -277,7 +330,7 @@ function App() {
                       <Code2 className="w-6 h-6 text-cyan-400" /> Inferred Specializations
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {report.specializations.map(spec => (
+                      {(report.specializations || report.inferred_domains || []).map(spec => (
                         <span key={spec} className="px-4 py-2 border border-cyan-500/20 rounded-xl text-xs font-bold text-cyan-300" style={{ backgroundColor: '#083344' }}>
                           {spec}
                         </span>
@@ -290,7 +343,7 @@ function App() {
                       <Zap className="w-6 h-6 text-yellow-400" /> Cognitive Insights
                     </h3>
                     <div className="space-y-4">
-                      {report.insights.map((insight, i) => (
+                      {(report.insights || []).map((insight, i) => (
                         <div key={i} className="flex gap-4 items-start">
                           <div className="w-1.5 h-1.5 rounded-full mt-2" style={{ backgroundColor: '#facc15' }} />
                           <p className="text-sm text-slate-300 leading-relaxed">{insight}</p>
@@ -306,7 +359,7 @@ function App() {
                     <PieChart className="w-6 h-6 text-purple-400" /> Technological DNA
                   </h3>
                   <div className="h-[300px] w-full" style={{ height: '300px', width: '100%', minHeight: '300px' }}>
-                    <BarChart width={800} height={300} data={Object.entries(report.languages).slice(0, 8).map(([name, value]) => ({ name, value }))}>
+                    <BarChart width={800} height={300} data={Object.entries(report.languages || {}).slice(0, 8).map(([name, value]) => ({ name, value }))}>
                       <XAxis dataKey="name" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} tick={{dy: 10}} />
                       <Tooltip 
                         cursor={{fill: 'rgba(255,255,255,0.05)'}}
