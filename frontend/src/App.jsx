@@ -79,7 +79,9 @@ function App() {
             #dashboard-report { background-color: #ffffff !important; }
             .text-white, .text-slate-300, .text-slate-400 { color: #1e293b !important; }
             .text-slate-500 { color: #475569 !important; }
+            .text-cyan-400, .text-cyan-300, .text-cyan-500 { color: #0891b2 !important; }
             .bg-slate-900\\/50, .bg-white\\/5 { background-color: #f8fafc !important; }
+            .bg-\\[\\#020617\\] { background-color: #ffffff !important; }
             .border-white\\/5, .border-white\\/10 { border-color: #e2e8f0 !important; }
             text.recharts-text { fill: #475569 !important; }
             img.border-cyan-500\\/30 { border-color: #bae6fd !important; }
