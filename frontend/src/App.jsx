@@ -172,6 +172,34 @@ function App() {
           clonedDoc.querySelectorAll('.recharts-wrapper svg').forEach(svg => {
             svg.setAttribute('width', '100%')
           })
+
+          // --- PAGE BREAK AVOIDANCE LOGIC ---
+          if (reportEl) {
+            // A4 page aspect ratio is 297/210. With a container width of 1400px, 
+            // one "PDF page" corresponds to ~1980 DOM pixels in height.
+            const pageHeightInPx = 1400 * (297 / 210);
+            
+            const breakAvoids = clonedDoc.querySelectorAll('.pdf-break-avoid');
+            breakAvoids.forEach(el => {
+              const containerRect = reportEl.getBoundingClientRect();
+              const elRect = el.getBoundingClientRect();
+              // Calculate Y position relative to the container
+              const yPos = elRect.top - containerRect.top;
+              const elBottomPos = yPos + elRect.height;
+              
+              const pageNumber = Math.floor(yPos / pageHeightInPx);
+              const bottomPageNumber = Math.floor(elBottomPos / pageHeightInPx);
+              
+              // If the element starts on one page and ends on another, it spans a cut line
+              if (bottomPageNumber > pageNumber && elRect.height < pageHeightInPx) {
+                const cutLine = (pageNumber + 1) * pageHeightInPx;
+                // Add enough margin-top to push the element entirely past the cut line
+                const spaceNeeded = cutLine - yPos + 20; // 20px extra buffer
+                const currentMarginTop = parseFloat(window.getComputedStyle(el).marginTop || 0);
+                el.style.marginTop = `${currentMarginTop + spaceNeeded}px`;
+              }
+            });
+          }
         }
       })
 
@@ -316,7 +344,7 @@ function App() {
               {/* Sidebar: Profile & Score */}
               <div className="lg:col-span-4 space-y-8">
                 {/* Profile Card */}
-                <div className="bg-slate-900/50 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-10 relative overflow-hidden group">
+                <div className="pdf-break-avoid bg-slate-900/50 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-10 relative overflow-hidden group">
                   <div className="border border-white/10 rounded-3xl p-8" style={{ backgroundColor: '#1e293b' }}>
                     <div className="flex flex-col items-center">
                       <div className="relative mb-6">
@@ -334,7 +362,7 @@ function App() {
                   </div>
 
                   {/* IQ Score Card */}
-                  <div className="mt-8 border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center" style={{ backgroundColor: '#1e293b' }}>
+                  <div className="pdf-break-avoid mt-8 border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center" style={{ backgroundColor: '#1e293b' }}>
                     <div className="text-slate-500 uppercase tracking-[0.3em] text-[10px] font-bold mb-4">Core Developer IQ</div>
                     <div className="text-8xl font-black text-white tracking-tighter mb-4">{report.score}</div>
                     <div className="h-2 w-48 rounded-full overflow-hidden" style={{ backgroundColor: '#0f172a' }}>
@@ -343,7 +371,7 @@ function App() {
                   </div>
 
                   {/* Readiness Dial */}
-                  <div className="mt-8 border border-white/5 rounded-3xl p-10 flex flex-col items-center" style={{ backgroundColor: '#0f172a' }}>
+                  <div className="pdf-break-avoid mt-8 border border-white/5 rounded-3xl p-10 flex flex-col items-center" style={{ backgroundColor: '#0f172a' }}>
                     <h3 className="text-lg font-bold text-white mb-8 w-full">Career Readiness</h3>
                     <div className="relative w-40 h-40 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90">
@@ -366,7 +394,7 @@ function App() {
                 
                 {/* Top Row: Specializations & Insights */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
+                  <div className="pdf-break-avoid border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
                     <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                       <Code2 className="w-6 h-6 text-cyan-400" /> Inferred Specializations
                     </h3>
@@ -379,7 +407,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
+                  <div className="pdf-break-avoid border border-white/5 rounded-3xl p-8" style={{ backgroundColor: '#0f172a' }}>
                     <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                       <Zap className="w-6 h-6 text-yellow-400" /> Cognitive Insights
                     </h3>
@@ -395,7 +423,7 @@ function App() {
                 </div>
 
                 {/* Chart: Tech DNA */}
-                <div className="border border-white/5 rounded-[2.5rem] p-10" style={{ backgroundColor: '#0f172a' }}>
+                <div className="pdf-break-avoid border border-white/5 rounded-[2.5rem] p-10" style={{ backgroundColor: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-10 flex items-center gap-3">
                     <PieChart className="w-6 h-6 text-purple-400" /> Technological DNA
                   </h3>
@@ -411,7 +439,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="border border-white/10 rounded-3xl p-10" style={{ backgroundColor: '#0f172a' }}>
+                <div className="pdf-break-avoid border border-white/10 rounded-3xl p-10" style={{ backgroundColor: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-8 flex items-center gap-3">
                     <GitBranch className="w-6 h-6 text-green-400" /> Core Repository Audit
                   </h3>
@@ -436,7 +464,7 @@ function App() {
                 </div>
 
                 {/* Strategic Roadmap */}
-                <div className="border border-cyan-500/20 rounded-[2.5rem] p-10" style={{ background: 'linear-gradient(to bottom right, rgba(8, 145, 178, 0.1), rgba(15, 23, 42, 0.5))' }}>
+                <div className="pdf-break-avoid border border-cyan-500/20 rounded-[2.5rem] p-10" style={{ background: 'linear-gradient(to bottom right, rgba(8, 145, 178, 0.1), rgba(15, 23, 42, 0.5))' }}>
                   <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4">
                     <TrendingUp className="w-8 h-8 text-[#22d3ee]" /> Precision Career Path
                   </h3>
@@ -458,7 +486,7 @@ function App() {
                 </div>
 
                 {/* AI Mentorship Section */}
-                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-10" style={{ background: '#0f172a' }}>
+                <div className="pdf-break-avoid bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-10" style={{ background: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
                     <Zap className="w-6 h-6 text-[#a855f7]" /> AI Career Mentor
                   </h3>
@@ -477,7 +505,7 @@ function App() {
                 </div>
 
                 {/* Historical Progress (Mocked for Demo) */}
-                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-10" style={{ background: '#0f172a' }}>
+                <div className="pdf-break-avoid bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-10" style={{ background: '#0f172a' }}>
                   <h3 className="text-lg font-bold text-white mb-8 flex items-center gap-3">
                     <TrendingUp className="w-6 h-6 text-[#06b6d4]" /> Growth Trajectory
                   </h3>
