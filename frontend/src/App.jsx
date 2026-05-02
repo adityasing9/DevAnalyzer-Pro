@@ -31,58 +31,14 @@ function App() {
   const [generatingAi, setGeneratingAi] = useState(false)
 
   const downloadPDF = async () => {
-    // Step 1: Build color map by resolving through the browser BEFORE cloning
-    const colorMap = {}
-    const tmpEl = document.createElement('div')
-    tmpEl.style.cssText = 'display:none;position:absolute;'
-    document.body.appendChild(tmpEl)
-
-    const colorValues = new Set()
-    Array.from(document.styleSheets).forEach(sheet => {
-      try {
-        Array.from(sheet.cssRules || []).forEach(rule => {
-          const matches = (rule.cssText || '').matchAll(/(?:oklch|oklab)\([^)]+\)/g)
-          for (const m of matches) colorValues.add(m[0])
-        })
-      } catch (_) {}
-    })
-
-    for (const col of colorValues) {
-      try {
-        tmpEl.style.color = col
-        const rgb = getComputedStyle(tmpEl).color
-        const m = rgb.match(/\d+/g)
-        if (m && m.length >= 3) {
-          const hex = '#' + [m[0],m[1],m[2]].map(v => parseInt(v).toString(16).padStart(2,'0')).join('')
-          colorMap[col] = hex
-        }
-      } catch (_) {}
-    }
-    document.body.removeChild(tmpEl)
-
     try {
       const element = document.getElementById('dashboard-report')
       if (!element) throw new Error('Report element not found')
 
-      // Pre-fetch external CSS to avoid html2canvas crashing on oklch in Netlify production
-      let externalCss = '';
-      try {
-        const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
-        for (const link of links) {
-          if (link.href && !link.href.includes('google')) { // Skip external fonts to prevent CORS hangs
-            try {
-              const res = await fetch(link.href, { mode: 'cors' });
-              if (res.ok) {
-                externalCss += await res.text() + '\n';
-              }
-            } catch (innerErr) {
-              console.warn("Skipping stylesheet due to fetch error:", link.href, innerErr);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("Could not prefetch external CSS", err);
-      }
+      // ULTIMATE DEFENSE: Temporarily disable all stylesheets to prevent html2canvas from 
+      // seeing oklch tokens in the production bundle. This is the only way to stop the crash.
+      const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'));
+      styles.forEach(s => s.disabled = true);
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -93,71 +49,48 @@ function App() {
         windowWidth: 1280,
         onclone: (clonedDoc) => {
           const reportEl = clonedDoc.getElementById('dashboard-report');
-          // 1. PRODUCTION STABILIZATION: Completely strip all external CSS
-          // This is the ONLY way to prevent the "oklch" crash in Tailwind v4 production.
-          // We rely on our hardcoded lightThemeStyle below for perfect, safe rendering.
+          
+          // 1. Remove all remaining style tags in the clone
           clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
 
-          // 2. SAFE THEME INJECTION: Recreate the entire dashboard look with safe CSS
-          const lightThemeStyle = clonedDoc.createElement('style')
-          lightThemeStyle.textContent = `
-            #dashboard-report { 
-              background-color: #ffffff !important; 
-              color: #1e293b !important;
-              font-family: sans-serif;
-            }
-            .border { border: 1px solid #e2e8f0 !important; }
-            .rounded-3xl { border-radius: 1.5rem !important; }
-            .rounded-\\[2\\.5rem\\] { border-radius: 2.5rem !important; }
+          // 2. Nuclear scrub for absolute certainty - replace all illegal tokens in HTML string
+          const scrub = (html) => html.replace(/(?:oklch|oklab|color-mix)\s*\([^)]+\)/gi, '#cbd5e1');
+          clonedDoc.head.innerHTML = scrub(clonedDoc.head.innerHTML);
+          clonedDoc.body.innerHTML = scrub(clonedDoc.body.innerHTML);
+
+          // 3. Inject "Safe Mode" CSS
+          const safeStyle = clonedDoc.createElement('style');
+          safeStyle.textContent = `
+            #dashboard-report { background-color: #ffffff !important; color: #1e293b !important; font-family: sans-serif; width: 1280px !important; padding: 40px !important; }
             .bg-slate-800, .bg-slate-900, .bg-slate-900\\/50 { background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
             .text-white, .text-slate-300, .text-slate-400 { color: #1e293b !important; }
             .text-cyan-400, .text-cyan-500 { color: #0891b2 !important; }
             .flex { display: flex !important; }
             .flex-col { flex-direction: column !important; }
             .flex-row { flex-direction: row !important; }
+            .gap-8 { gap: 32px !important; }
+            .p-10 { padding: 40px !important; }
             .w-full { width: 100% !important; }
             .lg\\:w-1\\/3 { width: 33.33% !important; }
             .lg\\:w-2\\/3 { width: 66.66% !important; }
-            .gap-8 { gap: 32px !important; }
-            .gap-6 { gap: 24px !important; }
-            .p-10 { padding: 40px !important; }
-            .p-8 { padding: 32px !important; }
-            .mb-8 { margin-bottom: 32px !important; }
-            .items-center { align-items: center !important; }
-            .justify-center { justify-content: center !important; }
-            .text-5xl { font-size: 3rem !important; font-weight: 800 !important; }
-            .text-2xl { font-size: 1.5rem !important; font-weight: 700 !important; }
             text.recharts-text { fill: #475569 !important; }
-          `
-          clonedDoc.head.appendChild(lightThemeStyle)
+            .pdf-break-avoid { page-break-inside: avoid !important; margin-bottom: 20px !important; }
+            .rounded-3xl, .rounded-\\[2\\.5rem\\] { border-radius: 20px !important; }
+            .border { border: 1px solid #e2e8f0 !important; }
+          `;
+          clonedDoc.head.appendChild(safeStyle);
 
-          // 4.1. FIX HTML2CANVAS TAILWIND V4 PARSING BUGS
-          // html2canvas silently fails to parse modern CSS variables used by Tailwind v4 spacing.
-          const spacingStyle = clonedDoc.createElement('style');
-          spacingStyle.textContent = `
-              .gap-3 { gap: 12px !important; }
-              .gap-4 { gap: 16px !important; }
-              .gap-6 { gap: 24px !important; }
-              .gap-8 { gap: 32px !important; }
-              .mt-1 { margin-top: 4px !important; }
-              .mt-2 { margin-top: 8px !important; }
-              .mt-8 { margin-top: 32px !important; }
-              .mb-1 { margin-bottom: 4px !important; }
-              .mb-2 { margin-bottom: 8px !important; }
-              .mb-4 { margin-bottom: 16px !important; }
-              .mb-6 { margin-bottom: 24px !important; }
-              .mb-8 { margin-bottom: 32px !important; }
-              .mb-10 { margin-bottom: 40px !important; }
-              .p-2 { padding: 8px !important; }
-              .p-4 { padding: 16px !important; }
-              .p-6 { padding: 24px !important; }
-              .p-8 { padding: 32px !important; }
-              .p-10 { padding: 40px !important; }
-              .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
-              .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
-            `;
-            clonedDoc.head.appendChild(spacingStyle);
+          // 4. Deep clean inline styles and attributes
+          clonedDoc.querySelectorAll('*').forEach(el => {
+            const style = el.getAttribute('style') || '';
+            if (style.includes('okl')) el.setAttribute('style', scrub(style));
+            ['fill', 'stroke'].forEach(attr => {
+              const val = el.getAttribute(attr);
+              if (val && val.includes('okl')) el.setAttribute(attr, '#cbd5e1');
+            });
+          });
 
+          // 5. Fix Recharts and SVG scaling
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
             el.style.width = '100%';
             el.style.height = '300px';
@@ -171,24 +104,20 @@ function App() {
             svg.setAttribute('height', '100%');
           });
 
-          // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
+          // 6. Pagination Spacers
           if (reportEl) {
             const pageHeightInPx = 1280 * (297 / 210);
             const breakAvoids = Array.from(clonedDoc.querySelectorAll('.pdf-break-avoid'));
-            
             breakAvoids.forEach(el => {
               const containerRect = reportEl.getBoundingClientRect();
               const elRect = el.getBoundingClientRect();
               const yPos = elRect.top - containerRect.top;
               const elBottomPos = yPos + elRect.height;
-              
               const pageNumber = Math.floor(yPos / pageHeightInPx);
               const bottomPageNumber = Math.floor(elBottomPos / pageHeightInPx);
-              
               if (bottomPageNumber > pageNumber && elRect.height < pageHeightInPx) {
                 const cutLine = (pageNumber + 1) * pageHeightInPx;
-                const spaceNeeded = cutLine - yPos + 100; // Deep top-margin for clean page split
-                
+                const spaceNeeded = cutLine - yPos + 100;
                 const spacer = clonedDoc.createElement('div');
                 spacer.style.height = `${spaceNeeded}px`;
                 spacer.style.width = '100%';
@@ -199,6 +128,9 @@ function App() {
           }
         }
       });
+
+      // Restore stylesheets immediately after capture starts
+      styles.forEach(s => s.disabled = false);
 
       const pdf = new jsPDF('p', 'mm', 'a4')
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
@@ -223,7 +155,7 @@ function App() {
 
     } catch (err) {
       console.error('CRITICAL PDF ERROR:', err)
-      alert(`Export Failed: ${err.message}\n\nCheck console for full stack trace.`)
+      alert(`Export Failed: ${err.message}\n\nPlease check if all charts are visible and try again.`)
     }
   }
 
