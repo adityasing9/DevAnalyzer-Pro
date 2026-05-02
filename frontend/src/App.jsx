@@ -40,48 +40,78 @@ function App() {
 
           const pdfStyle = clonedDoc.createElement('style');
           pdfStyle.textContent = `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+            
             #dashboard-report { 
               background-color: #020617 !important; 
-              color: #f8fafc !important; 
-              font-family: 'Inter', sans-serif; 
+              color: #f1f5f9 !important; 
+              font-family: 'Inter', sans-serif !important; 
               width: 1400px !important; 
-              padding: 60px !important; 
+              padding: 80px !important; 
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 40px !important;
             }
-            .card { background-color: #0f172a !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 32px !important; padding: 40px !important; }
+            
+            .grid { display: grid !important; grid-template-columns: repeat(12, 1fr) !important; gap: 40px !important; }
+            .lg\\:col-span-4 { grid-column: span 4 !important; }
+            .lg\\:col-span-8 { grid-column: span 8 !important; }
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            
+            .pdf-break-avoid { 
+              page-break-inside: avoid !important; 
+              break-inside: avoid !important; 
+              background-color: #0f172a !important; 
+              border: 1px solid rgba(255,255,255,0.1) !important; 
+              border-radius: 48px !important; 
+              padding: 48px !important; 
+              position: relative !important;
+              overflow: hidden !important;
+            }
+
+            h2, h3 { color: #ffffff !important; font-weight: 900 !important; }
             .text-white { color: #ffffff !important; }
-            .text-cyan { color: #22d3ee !important; }
-            .text-slate { color: #94a3b8 !important; }
+            .text-cyan-400, .text-cyan-500 { color: #22d3ee !important; }
+            .text-slate-400, .text-slate-500 { color: #94a3b8 !important; }
+            .text-green-400 { color: #4ade80 !important; }
+            .text-red-400 { color: #f87171 !important; }
+            .text-yellow-400 { color: #fbbf24 !important; }
+            
+            .bg-white\\/5 { background-color: rgba(255,255,255,0.05) !important; border-radius: 24px !important; }
+            .bg-cyan-500\\/10 { background-color: rgba(34,211,238,0.1) !important; }
+            .bg-slate-800 { background-color: #1e293b !important; }
+            .bg-slate-900 { background-color: #0f172a !important; }
+            
+            .border-cyan-500 { border-color: #06b6d4 !important; }
+            .border-white\\/10 { border-color: rgba(255,255,255,0.1) !important; }
+            
             .flex { display: flex !important; }
             .flex-col { flex-direction: column !important; }
-            .grid { display: grid !important; grid-template-columns: repeat(12, 1fr) !important; gap: 32px !important; }
-            .col-4 { grid-column: span 4 !important; }
-            .col-8 { grid-column: span 8 !important; }
-            .gap-8 { gap: 32px !important; }
-            .p-10 { padding: 40px !important; }
-            .rounded-full { border-radius: 9999px !important; }
-            .border-cyan { border: 2px solid #22d3ee !important; }
-            .bg-cyan-glow { background-color: rgba(34,211,238,0.1) !important; }
-            .pdf-break-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+            .items-center { align-items: center !important; }
+            .justify-center { justify-content: center !important; }
+            .gap-4 { gap: 16px !important; }
+            .gap-6 { gap: 24px !important; }
+            .gap-10 { gap: 40px !important; }
             
-            /* Specific resets */
-            * { border-color: rgba(255,255,255,0.05) !important; }
-            .insight-green { background-color: rgba(34,197,94,0.05) !important; border: 1px solid rgba(34,197,94,0.2) !important; color: #4ade80 !important; border-radius: 16px !important; padding: 20px !important; }
-            .insight-red { background-color: rgba(239,68,68,0.05) !important; border: 1px solid rgba(239,68,68,0.2) !important; color: #f87171 !important; border-radius: 16px !important; padding: 20px !important; }
+            .rounded-full { border-radius: 9999px !important; }
+            .w-48 { width: 192px !important; }
+            .h-48 { height: 192px !important; }
+            .w-full { width: 100% !important; }
+            
+            /* Recharts fix */
+            .recharts-cartesian-axis-tick-value { fill: #94a3b8 !important; font-size: 14px !important; }
           `;
           clonedDoc.head.appendChild(pdfStyle);
+
+          // Remove glowing background effects that rely on gradients/blur (hard to capture)
+          clonedDoc.querySelectorAll('.blur-\\[60px\\], .blur-\\[160px\\]').forEach(el => el.remove());
 
           // Deep clean illegal tokens
           clonedDoc.querySelectorAll('*').forEach(el => {
             const style = el.getAttribute('style') || '';
             if (style.includes('okl')) {
-              el.setAttribute('style', style.replace(/(?:oklch|oklab|color-mix)\s*\([^)]+\)/gi, '#0891b2'));
+              el.setAttribute('style', style.replace(/(?:oklch|oklab|color-mix)\s*\([^)]+\)/gi, '#06b6d4'));
             }
-          });
-
-          // Fix charts for capture
-          clonedDoc.querySelectorAll('svg').forEach(svg => {
-            svg.setAttribute('width', '100%');
-            svg.setAttribute('height', '100%');
           });
         }
       });
