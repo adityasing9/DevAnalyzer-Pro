@@ -208,7 +208,7 @@ function App() {
 
           // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
           if (reportEl) {
-            const pageHeightInPx = 1280 * (210 / 297);
+            const pageHeightInPx = 1280 * (297 / 210);
             const breakAvoids = Array.from(clonedDoc.querySelectorAll('.pdf-break-avoid'));
             
             breakAvoids.forEach(el => {
@@ -235,7 +235,7 @@ function App() {
         }
       });
 
-      const pdf = new jsPDF('l', 'mm', 'a4')
+      const pdf = new jsPDF('p', 'mm', 'a4')
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
