@@ -35,7 +35,7 @@ function App() {
         onclone: (clonedDoc) => {
           const reportEl = clonedDoc.getElementById('dashboard-report');
           
-          // Clear styles but replace with a MUCH better layout-focused stylesheet
+          // Clear styles but replace with a high-fidelity layout engine
           clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
 
           const pdfStyle = clonedDoc.createElement('style');
@@ -51,69 +51,96 @@ function App() {
               display: flex !important;
               flex-direction: column !important;
               gap: 40px !important;
+              min-height: 2000px !important; /* Ensure background covers enough space */
             }
             
-            /* The main 2-column layout */
+            /* Main 2-Column Dashboard Grid Re-implementation */
             .grid.lg\\:grid-cols-12 { 
               display: flex !important; 
+              flex-direction: row !important;
               gap: 40px !important; 
-              align-items: flex-start !important;
+              width: 100% !important;
             }
             
-            /* Left column (Profile/Score/Readiness) */
+            /* Left Rail */
             .lg\\:col-span-4 { 
-              width: 440px !important; 
+              width: 420px !important; 
               display: flex !important;
               flex-direction: column !important;
               gap: 40px !important;
               flex-shrink: 0 !important;
             }
             
-            /* Right column (Insights/Charts/Roadmap) */
+            /* Right Content Area */
             .lg\\:col-span-8 { 
               flex: 1 !important;
               display: flex !important;
               flex-direction: column !important;
               gap: 40px !important;
+              min-width: 0 !important; /* Prevents flex blowout */
             }
             
-            /* Nested grids (Specializations/Insights) */
+            /* Nested Horizontal Grids */
             .grid.md\\:grid-cols-2 { 
               display: flex !important; 
+              flex-direction: row !important;
               gap: 40px !important; 
+              width: 100% !important;
             }
-            .grid.md\\:grid-cols-2 > div { flex: 1 !important; }
+            .grid.md\\:grid-cols-2 > div { 
+              flex: 1 !important; 
+              min-width: 0 !important;
+            }
 
+            /* Card Styling */
             .pdf-break-avoid { 
               page-break-inside: avoid !important; 
               break-inside: avoid !important; 
-              background-color: rgba(15, 23, 42, 0.8) !important; 
+              background-color: #0f172a !important; 
               border: 1px solid rgba(255,255,255,0.1) !important; 
               border-radius: 48px !important; 
               padding: 48px !important; 
+              position: relative !important;
+              display: flex !important;
+              flex-direction: column !important;
             }
 
-            h2, h3 { color: #ffffff !important; font-weight: 900 !important; margin: 0 !important; }
-            .text-5xl { font-size: 48px !important; }
-            .text-2xl { font-size: 24px !important; }
+            /* Chart Container Fix */
+            .h-\\[400px\\], .h-\\[300px\\] {
+              height: 350px !important;
+              width: 100% !important;
+              position: relative !important;
+              display: block !important;
+            }
+            
+            /* Text & Typography */
+            h2, h3 { color: #ffffff !important; font-weight: 900 !important; margin: 0 0 24px 0 !important; }
+            .text-5xl { font-size: 44px !important; }
+            .text-2xl { font-size: 20px !important; }
             .text-white { color: #ffffff !important; }
             .text-cyan-400 { color: #22d3ee !important; }
             .text-slate-400 { color: #94a3b8 !important; }
             
-            .bg-white\\/5 { background-color: rgba(255,255,255,0.05) !important; border-radius: 24px !important; }
-            .bg-cyan-500\\/10 { background-color: rgba(34,211,238,0.1) !important; }
-            
+            /* Utility Fixes */
             .flex { display: flex !important; }
             .flex-col { flex-direction: column !important; }
             .items-center { align-items: center !important; }
             .justify-center { justify-content: center !important; }
             .text-center { text-align: center !important; }
-            
-            .w-48 { width: 192px !important; height: 192px !important; }
             .rounded-full { border-radius: 9999px !important; }
+            .w-48 { width: 180px !important; height: 180px !important; }
             
-            /* Recharts fix */
-            svg { overflow: visible !important; }
+            .bg-white\\/5 { background-color: rgba(255,255,255,0.08) !important; border-radius: 24px !important; padding: 20px !important; }
+            .bg-cyan-500\\/10 { background-color: rgba(34,211,238,0.1) !important; padding: 12px 24px !important; border-radius: 16px !important; }
+
+            /* Recharts & SVG Fixes */
+            svg { 
+              width: 100% !important; 
+              height: 100% !important; 
+              display: block !important;
+              position: relative !important;
+            }
+            .recharts-cartesian-axis-tick-value { fill: #94a3b8 !important; font-size: 12px !important; }
           `;
           clonedDoc.head.appendChild(pdfStyle);
 
