@@ -127,11 +127,13 @@ function App() {
             .text-5xl { font-size: 3rem !important; font-weight: 800 !important; }
             .text-2xl { font-size: 1.5rem !important; font-weight: 700 !important; }
             text.recharts-text { fill: #475569 !important; }
-            // 4.1. FIX HTML2CANVAS TAILWIND V4 PARSING BUGS
-            // html2canvas silently fails to parse modern CSS variables used by Tailwind v4 spacing.
-            // We physically inject hardcoded pixel values to prevent components from overlapping.
-            const spacingStyle = clonedDoc.createElement('style');
-            spacingStyle.textContent = `
+          `
+          clonedDoc.head.appendChild(lightThemeStyle)
+
+          // 4.1. FIX HTML2CANVAS TAILWIND V4 PARSING BUGS
+          // html2canvas silently fails to parse modern CSS variables used by Tailwind v4 spacing.
+          const spacingStyle = clonedDoc.createElement('style');
+          spacingStyle.textContent = `
               .gap-3 { gap: 12px !important; }
               .gap-4 { gap: 16px !important; }
               .gap-6 { gap: 24px !important; }
