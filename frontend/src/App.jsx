@@ -121,42 +121,17 @@ function App() {
             img.border-cyan-500\\/30 { border-color: #bae6fd !important; }
             circle[stroke="currentColor"] { color: #f1f5f9 !important; }
             circle[strokeDasharray] { color: #0891b2 !important; }
-          `
-          clonedDoc.head.appendChild(lightThemeStyle)
+          // 3. ABSOLUTE ZERO SCRUB: Global string replacement for oklch tokens
+          // This catches oklch hiding in variables, pseudo-elements, and complex rules
+          const nuclearScrub = (html) => {
+            return html
+              .replace(/(?:oklch|oklab)\s*\([^)]+\)/gi, '#cbd5e1')
+              .replace(/color-mix\s*\([^)]+\)/gi, 'transparent')
+              .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/gi, '');
+          };
 
-          clonedDoc.querySelectorAll('style').forEach(tag => {
-            tag.textContent = tag.textContent
-              .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
-              .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
-              .replace(/color-mix\s*\([^)]+\)/g, 'transparent');
-          });
-
-          clonedDoc.querySelectorAll('*').forEach(el => {
-            const style = el.getAttribute('style') || '';
-            if (style.includes('okl') || style.includes('color(')) {
-              el.setAttribute('style', style
-                .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
-                .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
-                .replace(/color-mix\s*\([^)]+\)/g, 'transparent')
-              );
-            }
-
-            // Scrub SVG attributes
-            ['fill', 'stroke'].forEach(attr => {
-              const val = el.getAttribute(attr);
-              if (val && (val.includes('okl') || val.includes('color('))) {
-                let newVal = val;
-                for (const [col, hex] of Object.entries(colorMap)) {
-                  newVal = newVal.split(col).join(hex);
-                }
-                newVal = newVal.replace(/color-mix\([^)]+\)/g, 'transparent')
-                               .replace(/in\s+oklab,?/g, '')
-                               .replace(/in\s+oklch,?/g, '')
-                               .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
-                el.setAttribute(attr, newVal);
-              }
-            });
-          });
+          clonedDoc.head.innerHTML = nuclearScrub(clonedDoc.head.innerHTML);
+          clonedDoc.body.innerHTML = nuclearScrub(clonedDoc.body.innerHTML);
 
           // 4. LAYOUT REPAIR: Fix dimensions for A4 capture
           const reportEl = clonedDoc.getElementById('dashboard-report');
