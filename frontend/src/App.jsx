@@ -35,7 +35,7 @@ function App() {
         onclone: (clonedDoc) => {
           const reportEl = clonedDoc.getElementById('dashboard-report');
           
-          // CRITICAL: Clear all external styles to prevent oklch crash
+          // Clear styles but replace with a MUCH better layout-focused stylesheet
           clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
 
           const pdfStyle = clonedDoc.createElement('style');
@@ -47,64 +47,75 @@ function App() {
               color: #f1f5f9 !important; 
               font-family: 'Inter', sans-serif !important; 
               width: 1400px !important; 
-              padding: 80px !important; 
+              padding: 60px !important; 
               display: flex !important;
               flex-direction: column !important;
               gap: 40px !important;
             }
             
-            .grid { display: grid !important; grid-template-columns: repeat(12, 1fr) !important; gap: 40px !important; }
-            .lg\\:col-span-4 { grid-column: span 4 !important; }
-            .lg\\:col-span-8 { grid-column: span 8 !important; }
-            .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            /* The main 2-column layout */
+            .grid.lg\\:grid-cols-12 { 
+              display: flex !important; 
+              gap: 40px !important; 
+              align-items: flex-start !important;
+            }
             
+            /* Left column (Profile/Score/Readiness) */
+            .lg\\:col-span-4 { 
+              width: 440px !important; 
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 40px !important;
+              flex-shrink: 0 !important;
+            }
+            
+            /* Right column (Insights/Charts/Roadmap) */
+            .lg\\:col-span-8 { 
+              flex: 1 !important;
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 40px !important;
+            }
+            
+            /* Nested grids (Specializations/Insights) */
+            .grid.md\\:grid-cols-2 { 
+              display: flex !important; 
+              gap: 40px !important; 
+            }
+            .grid.md\\:grid-cols-2 > div { flex: 1 !important; }
+
             .pdf-break-avoid { 
               page-break-inside: avoid !important; 
               break-inside: avoid !important; 
-              background-color: #0f172a !important; 
+              background-color: rgba(15, 23, 42, 0.8) !important; 
               border: 1px solid rgba(255,255,255,0.1) !important; 
               border-radius: 48px !important; 
               padding: 48px !important; 
-              position: relative !important;
-              overflow: hidden !important;
             }
 
-            h2, h3 { color: #ffffff !important; font-weight: 900 !important; }
+            h2, h3 { color: #ffffff !important; font-weight: 900 !important; margin: 0 !important; }
+            .text-5xl { font-size: 48px !important; }
+            .text-2xl { font-size: 24px !important; }
             .text-white { color: #ffffff !important; }
-            .text-cyan-400, .text-cyan-500 { color: #22d3ee !important; }
-            .text-slate-400, .text-slate-500 { color: #94a3b8 !important; }
-            .text-green-400 { color: #4ade80 !important; }
-            .text-red-400 { color: #f87171 !important; }
-            .text-yellow-400 { color: #fbbf24 !important; }
+            .text-cyan-400 { color: #22d3ee !important; }
+            .text-slate-400 { color: #94a3b8 !important; }
             
             .bg-white\\/5 { background-color: rgba(255,255,255,0.05) !important; border-radius: 24px !important; }
             .bg-cyan-500\\/10 { background-color: rgba(34,211,238,0.1) !important; }
-            .bg-slate-800 { background-color: #1e293b !important; }
-            .bg-slate-900 { background-color: #0f172a !important; }
-            
-            .border-cyan-500 { border-color: #06b6d4 !important; }
-            .border-white\\/10 { border-color: rgba(255,255,255,0.1) !important; }
             
             .flex { display: flex !important; }
             .flex-col { flex-direction: column !important; }
             .items-center { align-items: center !important; }
             .justify-center { justify-content: center !important; }
-            .gap-4 { gap: 16px !important; }
-            .gap-6 { gap: 24px !important; }
-            .gap-10 { gap: 40px !important; }
+            .text-center { text-align: center !important; }
             
+            .w-48 { width: 192px !important; height: 192px !important; }
             .rounded-full { border-radius: 9999px !important; }
-            .w-48 { width: 192px !important; }
-            .h-48 { height: 192px !important; }
-            .w-full { width: 100% !important; }
             
             /* Recharts fix */
-            .recharts-cartesian-axis-tick-value { fill: #94a3b8 !important; font-size: 14px !important; }
+            svg { overflow: visible !important; }
           `;
           clonedDoc.head.appendChild(pdfStyle);
-
-          // Remove glowing background effects that rely on gradients/blur (hard to capture)
-          clonedDoc.querySelectorAll('.blur-\\[60px\\], .blur-\\[160px\\]').forEach(el => el.remove());
 
           // Deep clean illegal tokens
           clonedDoc.querySelectorAll('*').forEach(el => {
