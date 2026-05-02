@@ -156,7 +156,6 @@ function App() {
               .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
             `;
             clonedDoc.head.appendChild(spacingStyle);
-          }
 
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
             el.style.width = '100%';
