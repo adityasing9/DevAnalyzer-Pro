@@ -163,6 +163,34 @@ function App() {
             reportEl.style.padding = '48px';
             reportEl.style.backgroundColor = '#ffffff';
             reportEl.style.margin = '0 auto';
+
+            // 4.1. FIX HTML2CANVAS TAILWIND V4 PARSING BUGS
+            // html2canvas silently fails to parse modern CSS variables used by Tailwind v4 spacing.
+            // We physically inject hardcoded pixel values to prevent components from overlapping.
+            const spacingStyle = clonedDoc.createElement('style');
+            spacingStyle.textContent = `
+              .gap-3 { gap: 12px !important; }
+              .gap-4 { gap: 16px !important; }
+              .gap-6 { gap: 24px !important; }
+              .gap-8 { gap: 32px !important; }
+              .mt-1 { margin-top: 4px !important; }
+              .mt-2 { margin-top: 8px !important; }
+              .mt-8 { margin-top: 32px !important; }
+              .mb-1 { margin-bottom: 4px !important; }
+              .mb-2 { margin-bottom: 8px !important; }
+              .mb-4 { margin-bottom: 16px !important; }
+              .mb-6 { margin-bottom: 24px !important; }
+              .mb-8 { margin-bottom: 32px !important; }
+              .mb-10 { margin-bottom: 40px !important; }
+              .p-2 { padding: 8px !important; }
+              .p-4 { padding: 16px !important; }
+              .p-6 { padding: 24px !important; }
+              .p-8 { padding: 32px !important; }
+              .p-10 { padding: 40px !important; }
+              .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+              .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+            `;
+            clonedDoc.head.appendChild(spacingStyle);
           }
 
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
@@ -194,7 +222,7 @@ function App() {
               
               if (bottomPageNumber > pageNumber && elRect.height < pageHeightInPx) {
                 const cutLine = (pageNumber + 1) * pageHeightInPx;
-                const spaceNeeded = cutLine - yPos + 60; // Clean top-margin for new page
+                const spaceNeeded = cutLine - yPos + 100; // Deep top-margin for clean page split
                 
                 const spacer = clonedDoc.createElement('div');
                 spacer.style.height = `${spaceNeeded}px`;
