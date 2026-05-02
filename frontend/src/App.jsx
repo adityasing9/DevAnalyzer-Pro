@@ -92,55 +92,41 @@ function App() {
         logging: false,
         windowWidth: 1280,
         onclone: (clonedDoc) => {
-          // 1. PRODUCTION STABILIZATION: Replace <link> with pre-fetched CSS
-          clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(l => l.remove());
-          if (externalCss) {
-            // NUCLEAR SCRUB: Remove all oklch/oklab BEFORE injecting into DOM
-            const sanitizedCss = externalCss
-              .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
-              .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
-              .replace(/color-mix\s*\([^)]+\)/g, 'transparent')
-              .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/g, '');
-              
-            const extStyle = clonedDoc.createElement('style');
-            extStyle.textContent = sanitizedCss;
-            clonedDoc.head.appendChild(extStyle);
-          }
+          // 1. PRODUCTION STABILIZATION: Completely strip all external CSS
+          // This is the ONLY way to prevent the "oklch" crash in Tailwind v4 production.
+          // We rely on our hardcoded lightThemeStyle below for perfect, safe rendering.
+          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
 
-          // 2. THEME OVERRIDES: Force light mode aesthetics
+          // 2. SAFE THEME INJECTION: Recreate the entire dashboard look with safe CSS
           const lightThemeStyle = clonedDoc.createElement('style')
           lightThemeStyle.textContent = `
-            #dashboard-report { background-color: #ffffff !important; }
+            #dashboard-report { 
+              background-color: #ffffff !important; 
+              color: #1e293b !important;
+              font-family: sans-serif;
+            }
+            .border { border: 1px solid #e2e8f0 !important; }
+            .rounded-3xl { border-radius: 1.5rem !important; }
+            .rounded-\\[2\\.5rem\\] { border-radius: 2.5rem !important; }
+            .bg-slate-800, .bg-slate-900, .bg-slate-900\\/50 { background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
             .text-white, .text-slate-300, .text-slate-400 { color: #1e293b !important; }
-            .text-slate-500 { color: #475569 !important; }
-            .text-cyan-400, .text-cyan-300, .text-cyan-500 { color: #0891b2 !important; }
-            .bg-slate-800, .bg-slate-900, .bg-slate-900\\/50, .bg-white\\/5 { background-color: #f8fafc !important; }
-            .bg-\\[\\#020617\\] { background-color: #ffffff !important; }
-            .border-white\\/5, .border-white\\/10 { border-color: #e2e8f0 !important; }
+            .text-cyan-400, .text-cyan-500 { color: #0891b2 !important; }
+            .flex { display: flex !important; }
+            .flex-col { flex-direction: column !important; }
+            .flex-row { flex-direction: row !important; }
+            .w-full { width: 100% !important; }
+            .lg\\:w-1\\/3 { width: 33.33% !important; }
+            .lg\\:w-2\\/3 { width: 66.66% !important; }
+            .gap-8 { gap: 32px !important; }
+            .gap-6 { gap: 24px !important; }
+            .p-10 { padding: 40px !important; }
+            .p-8 { padding: 32px !important; }
+            .mb-8 { margin-bottom: 32px !important; }
+            .items-center { align-items: center !important; }
+            .justify-center { justify-content: center !important; }
+            .text-5xl { font-size: 3rem !important; font-weight: 800 !important; }
+            .text-2xl { font-size: 1.5rem !important; font-weight: 700 !important; }
             text.recharts-text { fill: #475569 !important; }
-            img.border-cyan-500\\/30 { border-color: #bae6fd !important; }
-            circle[stroke="currentColor"] { color: #f1f5f9 !important; }
-            circle[strokeDasharray] { color: #0891b2 !important; }
-          // 3. ABSOLUTE ZERO SCRUB: Global string replacement for oklch tokens
-          // This catches oklch hiding in variables, pseudo-elements, and complex rules
-          const nuclearScrub = (html) => {
-            return html
-              .replace(/(?:oklch|oklab)\s*\([^)]+\)/gi, '#cbd5e1')
-              .replace(/color-mix\s*\([^)]+\)/gi, 'transparent')
-              .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/gi, '');
-          };
-
-          clonedDoc.head.innerHTML = nuclearScrub(clonedDoc.head.innerHTML);
-          clonedDoc.body.innerHTML = nuclearScrub(clonedDoc.body.innerHTML);
-
-          // 4. LAYOUT REPAIR: Fix dimensions for A4 capture
-          const reportEl = clonedDoc.getElementById('dashboard-report');
-          if (reportEl) {
-            reportEl.style.width = '1280px';
-            reportEl.style.padding = '48px';
-            reportEl.style.backgroundColor = '#ffffff';
-            reportEl.style.margin = '0 auto';
-
             // 4.1. FIX HTML2CANVAS TAILWIND V4 PARSING BUGS
             // html2canvas silently fails to parse modern CSS variables used by Tailwind v4 spacing.
             // We physically inject hardcoded pixel values to prevent components from overlapping.
