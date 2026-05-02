@@ -84,7 +84,7 @@ function App() {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        windowWidth: 800,
+        windowWidth: 1280,
         onclone: (clonedDoc) => {
           // 1. PRODUCTION STABILIZATION: Replace <link> with pre-fetched CSS
           clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(l => l.remove());
@@ -159,30 +159,10 @@ function App() {
           // 4. LAYOUT REPAIR: Fix dimensions for A4 capture
           const reportEl = clonedDoc.getElementById('dashboard-report');
           if (reportEl) {
-            reportEl.style.width = '800px';
-            reportEl.style.padding = '64px 48px';
+            reportEl.style.width = '1280px';
+            reportEl.style.padding = '48px';
             reportEl.style.backgroundColor = '#ffffff';
             reportEl.style.margin = '0 auto';
-
-            // FORCE MOBILE LAYOUT: Strip responsive classes to guarantee 1-column stacking
-            // html2canvas sometimes fails to evaluate media queries inside its hidden iframe
-            clonedDoc.querySelectorAll('.lg\\:flex-row').forEach(el => el.classList.remove('lg:flex-row'));
-            clonedDoc.querySelectorAll('.lg\\:w-1\\/3').forEach(el => el.classList.remove('lg:w-1/3'));
-            clonedDoc.querySelectorAll('.lg\\:w-2\\/3').forEach(el => el.classList.remove('lg:w-2/3'));
-            clonedDoc.querySelectorAll('.md\\:flex-row').forEach(el => el.classList.remove('md:flex-row'));
-            clonedDoc.querySelectorAll('.md\\:w-1\\/2').forEach(el => el.classList.remove('md:w-1/2'));
-            
-            // EXPAND SPACING: Make the PDF feel less congested
-            const spacingStyle = clonedDoc.createElement('style');
-            spacingStyle.textContent = `
-              .gap-8 { gap: 64px !important; }
-              .gap-6 { gap: 48px !important; }
-              .p-10 { padding: 48px !important; }
-              .p-8 { padding: 40px !important; }
-              .mb-8 { margin-bottom: 48px !important; }
-              .mb-10 { margin-bottom: 64px !important; }
-            `;
-            clonedDoc.head.appendChild(spacingStyle);
           }
 
           clonedDoc.querySelectorAll('.recharts-wrapper, .recharts-responsive-container').forEach(el => {
@@ -200,7 +180,7 @@ function App() {
 
           // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
           if (reportEl) {
-            const pageHeightInPx = 800 * (297 / 210);
+            const pageHeightInPx = 1280 * (210 / 297);
             const breakAvoids = Array.from(clonedDoc.querySelectorAll('.pdf-break-avoid'));
             
             breakAvoids.forEach(el => {
@@ -227,7 +207,7 @@ function App() {
         }
       });
 
-      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdf = new jsPDF('l', 'mm', 'a4')
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
