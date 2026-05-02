@@ -27,7 +27,7 @@ function App() {
 
       const canvas = await html2canvas(element, {
         scale: 2,
-        backgroundColor: '#020617',
+        backgroundColor: '#f8fafc',
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -35,127 +35,82 @@ function App() {
         onclone: (clonedDoc) => {
           const reportEl = clonedDoc.getElementById('dashboard-report');
           
-          // Clear styles but replace with a high-fidelity layout engine
+          // Clear styles for a perfectly clean high-fidelity report
           clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
 
           const pdfStyle = clonedDoc.createElement('style');
           pdfStyle.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
             
             #dashboard-report { 
-              background-color: #020617 !important; 
-              color: #f1f5f9 !important; 
+              background-color: #f8fafc !important; 
+              color: #0f172a !important; 
               font-family: 'Inter', sans-serif !important; 
               width: 1400px !important; 
-              padding: 60px !important; 
+              padding: 80px !important; 
               display: flex !important;
               flex-direction: column !important;
               gap: 40px !important;
-              min-height: 2000px !important; /* Ensure background covers enough space */
             }
             
-            /* Main 2-Column Dashboard Grid Re-implementation */
             .grid.lg\\:grid-cols-12 { 
               display: flex !important; 
-              flex-direction: row !important;
               gap: 40px !important; 
               width: 100% !important;
             }
             
-            /* Left Rail */
             .lg\\:col-span-4 { 
-              width: 420px !important; 
+              width: 380px !important; 
               display: flex !important;
               flex-direction: column !important;
-              gap: 40px !important;
+              gap: 32px !important;
               flex-shrink: 0 !important;
             }
             
-            /* Right Content Area */
             .lg\\:col-span-8 { 
               flex: 1 !important;
               display: flex !important;
               flex-direction: column !important;
-              gap: 40px !important;
-              min-width: 0 !important; /* Prevents flex blowout */
-            }
-            
-            /* Nested Horizontal Grids */
-            .grid.md\\:grid-cols-2 { 
-              display: flex !important; 
-              flex-direction: row !important;
-              gap: 40px !important; 
-              width: 100% !important;
-            }
-            .grid.md\\:grid-cols-2 > div { 
-              flex: 1 !important; 
+              gap: 32px !important;
               min-width: 0 !important;
             }
 
-            /* Card Styling */
             .pdf-break-avoid { 
               page-break-inside: avoid !important; 
               break-inside: avoid !important; 
-              background-color: #0f172a !important; 
-              border: 1px solid rgba(255,255,255,0.1) !important; 
-              border-radius: 48px !important; 
-              padding: 48px !important; 
-              position: relative !important;
-              display: flex !important;
-              flex-direction: column !important;
+              background-color: #ffffff !important; 
+              border: 1px solid #e2e8f0 !important; 
+              border-radius: 32px !important; 
+              padding: 40px !important; 
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
             }
 
-            /* Chart Container Fix */
-            .h-\\[400px\\], .h-\\[300px\\] {
-              height: 350px !important;
-              width: 100% !important;
-              position: relative !important;
-              display: block !important;
-            }
+            h2, h3 { color: #0f172a !important; font-weight: 900 !important; margin: 0 0 20px 0 !important; }
+            .text-5xl { font-size: 36px !important; }
+            .text-2xl { font-size: 18px !important; }
+            .text-white { color: #0f172a !important; }
+            .text-cyan-400 { color: #0891b2 !important; }
+            .text-slate-400, .text-slate-500 { color: #64748b !important; }
+            .text-cyan-500 { color: #0891b2 !important; }
             
-            /* Text & Typography */
-            h2, h3 { color: #ffffff !important; font-weight: 900 !important; margin: 0 0 24px 0 !important; }
-            .text-5xl { font-size: 44px !important; }
-            .text-2xl { font-size: 20px !important; }
-            .text-white { color: #ffffff !important; }
-            .text-cyan-400 { color: #22d3ee !important; }
-            .text-slate-400 { color: #94a3b8 !important; }
+            .bg-slate-900\\/60, .bg-slate-900\\/90 { background-color: #ffffff !important; }
+            .bg-white\\/5 { background-color: #f1f5f9 !important; border-radius: 20px !important; padding: 24px !important; }
+            .bg-cyan-500\\/10 { background-color: #ecfeff !important; color: #0891b2 !important; }
             
-            /* Utility Fixes */
-            .flex { display: flex !important; }
-            .flex-col { flex-direction: column !important; }
-            .items-center { align-items: center !important; }
-            .justify-center { justify-content: center !important; }
-            .text-center { text-align: center !important; }
+            .w-48 { width: 140px !important; height: 140px !important; }
             .rounded-full { border-radius: 9999px !important; }
-            .w-48 { width: 180px !important; height: 180px !important; }
             
-            .bg-white\\/5 { background-color: rgba(255,255,255,0.08) !important; border-radius: 24px !important; padding: 20px !important; }
-            .bg-cyan-500\\/10 { background-color: rgba(34,211,238,0.1) !important; padding: 12px 24px !important; border-radius: 16px !important; }
-
-            /* Recharts & SVG Fixes */
-            svg { 
-              width: 100% !important; 
-              height: 100% !important; 
-              display: block !important;
-              position: relative !important;
-            }
-            .recharts-cartesian-axis-tick-value { fill: #94a3b8 !important; font-size: 12px !important; }
+            /* Chart Adjustments */
+            .h-\\[400px\\], .h-\\[300px\\] { height: 320px !important; width: 100% !important; }
+            svg { overflow: visible !important; }
+            .recharts-cartesian-axis-tick-value { fill: #64748b !important; font-size: 12px !important; }
           `;
           clonedDoc.head.appendChild(pdfStyle);
-
-          // Deep clean illegal tokens
-          clonedDoc.querySelectorAll('*').forEach(el => {
-            const style = el.getAttribute('style') || '';
-            if (style.includes('okl')) {
-              el.setAttribute('style', style.replace(/(?:oklch|oklab|color-mix)\s*\([^)]+\)/gi, '#06b6d4'));
-            }
-          });
         }
       });
 
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgData = canvas.toDataURL('image/jpeg', 0.95)
+      const imgData = canvas.toDataURL('image/jpeg', 0.98)
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
       const imgHeight = (canvas.height * pdfWidth) / canvas.width
@@ -173,10 +128,10 @@ function App() {
         heightLeft -= pageHeight
       }
 
-      pdf.save(`${username || 'developer'}_audit.pdf`)
+      pdf.save(`${username || 'developer'}_audit_report.pdf`)
     } catch (err) {
       console.error('PDF Export Error:', err)
-      alert(`Export Failed: Tailwind v4 production colors crashed. Try again.`)
+      alert(`Export Failed. Please try again.`)
     }
   }
 
@@ -277,7 +232,7 @@ function App() {
           <div id="dashboard-report" className="space-y-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
               
-              {/* Left Column: Profile & Core Metrics */}
+              {/* Left Column */}
               <div className="lg:col-span-4 space-y-10">
                 {/* Profile Card */}
                 <div className="pdf-break-avoid bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-12 relative overflow-hidden group">
@@ -293,11 +248,11 @@ function App() {
                   
                   <div className="grid grid-cols-2 gap-6 mt-12 pt-12 border-t border-white/5">
                     <div className="bg-white/5 rounded-3xl p-6 text-center">
-                      <div className="text-4xl font-black text-white">{report.public_repos || 34}</div>
+                      <div className="text-4xl font-black text-white">{report.public_repos || 0}</div>
                       <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Repos</div>
                     </div>
                     <div className="bg-white/5 rounded-3xl p-6 text-center">
-                      <div className="text-4xl font-black text-white">{report.followers || 28}</div>
+                      <div className="text-4xl font-black text-white">{report.followers || 0}</div>
                       <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Stars</div>
                     </div>
                   </div>
@@ -311,11 +266,7 @@ function App() {
                   </div>
                   <div className="text-[140px] leading-[1] font-black text-white tracking-tighter mb-8">{report.score}</div>
                   <div className="h-4 w-full rounded-full bg-slate-800 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_0_20px_rgba(6,182,212,0.6)]" style={{ width: '67%' }} />
-                  </div>
-                  <div className="flex justify-between mt-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    <span>Novice</span>
-                    <span>Master</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600" style={{ width: `${report.score}%` }} />
                   </div>
                 </div>
 
@@ -325,66 +276,41 @@ function App() {
                   <div className="relative w-56 h-56 mx-auto flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
                       <circle cx="112" cy="112" r="95" stroke="currentColor" strokeWidth="16" fill="transparent" className="text-slate-800" />
-                      <circle cx="112" cy="112" r="95" stroke="#06b6d4" strokeWidth="16" fill="transparent" strokeDasharray={600} strokeDashoffset={600 - (600 * 67) / 100} strokeLinecap="round" className="shadow-[0_0_20px_rgba(6,182,212,0.4)]" />
+                      <circle cx="112" cy="112" r="95" stroke="#06b6d4" strokeWidth="16" fill="transparent" strokeDasharray={600} strokeDashoffset={600 - (600 * 67) / 100} strokeLinecap="round" />
                     </svg>
                     <div className="absolute text-7xl font-black text-white">67%</div>
                   </div>
                   <p className="mt-12 text-center text-slate-400 font-medium">Profile optimized for</p>
-                  <div className="text-center text-3xl font-black text-cyan-400 mt-2">{report.primary_domain || 'Frontend'}</div>
+                  <div className="text-center text-3xl font-black text-cyan-400 mt-2 uppercase">{report.primary_domain || 'Engineering'}</div>
                 </div>
               </div>
 
-              {/* Right Column: Insights & Charts */}
+              {/* Right Column */}
               <div className="lg:col-span-8 space-y-10">
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {/* Specializations */}
                   <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3rem] p-10">
-                    <h3 className="text-xl font-bold text-white mb-10 flex items-center gap-4">
-                      <Code2 className="text-cyan-400 w-7 h-7" /> Inferred Specializations
-                    </h3>
+                    <h3 className="text-xl font-bold text-white mb-10">Inferred Specializations</h3>
                     <div className="flex flex-wrap gap-4">
                       {(report.specializations || ['FRONTEND', 'SYSTEMS']).map(spec => (
                         <span key={spec} className="px-6 py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-black tracking-widest">{spec}</span>
                       ))}
                     </div>
                   </div>
-
-                  {/* Cognitive Insights */}
                   <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3rem] p-10">
-                    <h3 className="text-xl font-bold text-white mb-10 flex items-center gap-4">
-                      <Zap className="text-yellow-400 w-7 h-7" /> Cognitive Insights
-                    </h3>
-                    <div className="space-y-6">
-                      <div className="p-6 bg-green-500/5 border border-green-500/20 rounded-3xl relative group">
-                        <div className="flex gap-4">
-                          <div className="w-2 h-2 rounded-full bg-green-500 mt-2 shrink-0" />
-                          <p className="text-xs font-black text-green-400 uppercase tracking-widest leading-loose">Strength: Consistent active contributions</p>
-                        </div>
-                      </div>
-                      <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-3xl relative group">
-                        <div className="flex gap-4">
-                          <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
-                          <p className="text-xs font-black text-red-400 uppercase tracking-widest leading-loose">Growth Area: Broad but potentially surface-level stack</p>
-                        </div>
-                      </div>
-                    </div>
+                    <h3 className="text-xl font-bold text-white mb-10">Cognitive Insights</h3>
+                    <p className="text-sm font-medium text-slate-400 leading-relaxed">Strength: Consistent active contributions. Growth Area: Broad but potentially surface-level stack.</p>
                   </div>
                 </div>
 
-                {/* Tech DNA Chart */}
                 <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3.5rem] p-12">
-                  <h3 className="text-xl font-bold text-white mb-12 flex items-center gap-4">
-                    <Layout className="text-purple-400 w-7 h-7" /> Technological DNA
-                  </h3>
+                  <h3 className="text-xl font-bold text-white mb-12 flex items-center gap-4"><Layout className="text-purple-400 w-7 h-7" /> Technological DNA</h3>
                   <div className="h-[400px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={Object.entries(report.languages || {}).slice(0, 6).map(([name, value]) => ({ name, value }))}>
                         <XAxis dataKey="name" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} tick={{dy: 15}} />
-                        <Tooltip cursor={{fill: 'rgba(255,255,255,0.03)'}} contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '20px' }} />
                         <Bar dataKey="value" radius={[12, 12, 0, 0]} barSize={50}>
                           {Object.entries(report.languages || {}).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#06b6d4' : '#3b82f6'} />
+                            <Cell key={`cell-${index}`} fill="#06b6d4" />
                           ))}
                         </Bar>
                       </BarChart>
@@ -392,41 +318,55 @@ function App() {
                   </div>
                 </div>
 
-                {/* Repository Audit */}
                 <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3rem] p-10">
-                  <h3 className="text-xl font-bold text-white mb-10 flex items-center gap-4">
-                    <GitBranch className="text-green-400 w-7 h-7" /> Core Repository Audit
-                  </h3>
+                  <h3 className="text-xl font-bold text-white mb-10">Core Repository Audit</h3>
                   <div className="space-y-6">
-                    <div className="h-40 border border-dashed border-white/10 rounded-3xl flex items-center justify-center text-slate-600 font-medium">Scanning source integrity...</div>
-                  </div>
-                </div>
-
-                {/* Career Roadmap */}
-                <div className="pdf-break-avoid bg-slate-900/60 border border-cyan-500/20 rounded-[3.5rem] p-12">
-                  <h3 className="text-3xl font-black text-white mb-16 flex items-center gap-6">
-                    <TrendingUp className="text-cyan-400 w-10 h-10" /> Precision Career Path
-                  </h3>
-                  <div className="space-y-10 relative">
-                    <div className="absolute left-[23px] top-4 bottom-4 w-px bg-cyan-500/20" />
-                    {(report.roadmap || ['Master advanced Frontend architectural patterns.']).map((step, i) => (
-                      <div key={i} className="flex gap-10 relative group">
-                        <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-cyan-500 flex items-center justify-center text-lg font-black text-cyan-400 z-10 shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]">{i + 1}</div>
-                        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex-1 group-hover:border-cyan-500/30 transition-all">
-                          <p className="text-xl font-medium text-slate-300">{step}</p>
+                    {(report.top_repos || [
+                      {name: 'LinkManagerPro', description: 'No description provided', score: 28, language: 'JAVASCRIPT'},
+                      {name: 'AnonymousChat', description: 'No description provided', score: 24, language: 'HTML'},
+                      {name: 'TCS', description: 'No description provided', score: 17, language: 'PYTHON'},
+                      {name: 'SmartRoute-AI', description: 'TSP optimization platform.', score: 12, language: 'TYPESCRIPT'},
+                      {name: 'CyberHash', description: 'No description provided', score: 12, language: 'JAVASCRIPT'}
+                    ]).map((repo, i) => (
+                      <div key={i} className="flex justify-between items-center bg-white/5 p-8 rounded-[2rem] border border-white/5">
+                        <div>
+                          <h4 className="text-2xl font-black text-white mb-2">{repo.name}</h4>
+                          <p className="text-slate-500 text-sm">{repo.description}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-cyan-400 font-black text-xl">{repo.score} IQ</div>
+                          <div className="text-[10px] text-slate-600 font-black tracking-widest uppercase">{repo.language}</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Growth Trajectory */}
+                <div className="pdf-break-avoid bg-slate-900/60 border border-cyan-500/20 rounded-[3.5rem] p-12">
+                  <h3 className="text-3xl font-black text-white mb-16 flex items-center gap-6"><TrendingUp className="text-cyan-400 w-10 h-10" /> Precision Career Path</h3>
+                  <div className="space-y-8">
+                    {(report.roadmap || ['Master advanced patterns.', 'Contribute to open source.', 'Publish technical whitepapers.']).map((step, i) => (
+                      <div key={i} className="flex gap-10 items-center bg-white/5 p-8 rounded-[2.5rem]">
+                        <div className="w-12 h-12 rounded-full border-2 border-cyan-500 flex items-center justify-center text-lg font-black text-cyan-400 shrink-0">{i + 1}</div>
+                        <p className="text-xl font-medium text-slate-300">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3rem] p-10">
+                   <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-4"><Cpu className="text-purple-400 w-7 h-7" /> AI Career Mentor</h3>
+                   <div className="bg-white/5 p-10 rounded-[2.5rem]">
+                     <p className="text-xl leading-relaxed text-slate-300">{aiInsight || 'Analyzing your potential...'}</p>
+                   </div>
+                </div>
+
                 <div className="pdf-break-avoid bg-slate-900/60 border border-white/10 rounded-[3.5rem] p-12">
                    <h3 className="text-xl font-bold text-white mb-12 flex items-center gap-4"><TrendingUp className="text-cyan-400 w-7 h-7" /> Growth Trajectory</h3>
                    <div className="h-[300px] w-full">
                      <ResponsiveContainer width="100%" height="100%">
-                       <LineChart data={[{v: 400}, {v: 500}, {v: 676}]}>
-                         <Line type="monotone" dataKey="v" stroke="#06b6d4" strokeWidth={6} dot={{fill: '#06b6d4', r: 8, strokeWidth: 0}} />
+                       <LineChart data={[{v: 400}, {v: 500}, {v: report.score || 670}]}>
+                         <Line type="monotone" dataKey="v" stroke="#06b6d4" strokeWidth={6} dot={{fill: '#06b6d4', r: 8}} />
                        </LineChart>
                      </ResponsiveContainer>
                    </div>
