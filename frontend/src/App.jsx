@@ -95,8 +95,15 @@ function App() {
           // 1. PRODUCTION STABILIZATION: Replace <link> with pre-fetched CSS
           clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(l => l.remove());
           if (externalCss) {
+            // NUCLEAR SCRUB: Remove all oklch/oklab BEFORE injecting into DOM
+            const sanitizedCss = externalCss
+              .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
+              .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
+              .replace(/color-mix\s*\([^)]+\)/g, 'transparent')
+              .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/g, '');
+              
             const extStyle = clonedDoc.createElement('style');
-            extStyle.textContent = externalCss;
+            extStyle.textContent = sanitizedCss;
             clonedDoc.head.appendChild(extStyle);
           }
 
@@ -117,33 +124,21 @@ function App() {
           `
           clonedDoc.head.appendChild(lightThemeStyle)
 
-          // 3. COLOR SANITIZATION: Replace all oklch/oklab with resolved HEX
           clonedDoc.querySelectorAll('style').forEach(tag => {
-            let css = tag.textContent;
-            for (const [col, hex] of Object.entries(colorMap)) {
-              css = css.split(col).join(hex);
-            }
-            // Aggressive strip: convert everything oklch/oklab to a safe fallback
-            css = css.replace(/color-mix\([^)]*\)/g, 'transparent')
-                     .replace(/oklch\([^)]*\)/g, '#cbd5e1')
-                     .replace(/oklab\([^)]*\)/g, '#cbd5e1')
-                     .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/g, '');
-            tag.textContent = css;
+            tag.textContent = tag.textContent
+              .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
+              .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
+              .replace(/color-mix\s*\([^)]+\)/g, 'transparent');
           });
 
           clonedDoc.querySelectorAll('*').forEach(el => {
-            // Scrub inline styles
             const style = el.getAttribute('style') || '';
             if (style.includes('okl') || style.includes('color(')) {
-              let newStyle = style;
-              for (const [col, hex] of Object.entries(colorMap)) {
-                newStyle = newStyle.split(col).join(hex);
-              }
-              newStyle = newStyle.replace(/color-mix\([^)]+\)/g, 'transparent')
-                                 .replace(/in\s+oklab,?/g, '')
-                                 .replace(/in\s+oklch,?/g, '')
-                                 .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
-              el.setAttribute('style', newStyle);
+              el.setAttribute('style', style
+                .replace(/oklch\s*\([^)]+\)/g, '#cbd5e1')
+                .replace(/oklab\s*\([^)]+\)/g, '#cbd5e1')
+                .replace(/color-mix\s*\([^)]+\)/g, 'transparent')
+              );
             }
 
             // Scrub SVG attributes
