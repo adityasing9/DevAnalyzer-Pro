@@ -69,9 +69,15 @@ function App() {
       try {
         const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
         for (const link of links) {
-          if (link.href) {
-            const res = await fetch(link.href);
-            externalCss += await res.text() + '\n';
+          if (link.href && !link.href.includes('google')) { // Skip external fonts to prevent CORS hangs
+            try {
+              const res = await fetch(link.href, { mode: 'cors' });
+              if (res.ok) {
+                externalCss += await res.text() + '\n';
+              }
+            } catch (innerErr) {
+              console.warn("Skipping stylesheet due to fetch error:", link.href, innerErr);
+            }
           }
         }
       } catch (err) {
@@ -117,10 +123,11 @@ function App() {
             for (const [col, hex] of Object.entries(colorMap)) {
               css = css.split(col).join(hex);
             }
-            css = css.replace(/color-mix\([^)]+\)/g, 'transparent')
-                     .replace(/in\s+oklab,?/g, '')
-                     .replace(/in\s+oklch,?/g, '')
-                     .replace(/(?:oklch|oklab)\([^)]+\)/g, '#cbd5e1');
+            // Aggressive strip: convert everything oklch/oklab to a safe fallback
+            css = css.replace(/color-mix\([^)]*\)/g, 'transparent')
+                     .replace(/oklch\([^)]*\)/g, '#cbd5e1')
+                     .replace(/oklab\([^)]*\)/g, '#cbd5e1')
+                     .replace(/--[\w-]+\s*:\s*(?:oklch|oklab|color-mix)[^;]+;/g, '');
             tag.textContent = css;
           });
 
@@ -258,7 +265,7 @@ function App() {
 
     } catch (err) {
       console.error('CRITICAL PDF ERROR:', err)
-      alert(`Export Failed: ${err.message}`)
+      alert(`Export Failed: ${err.message}\n\nCheck console for full stack trace.`)
     }
   }
 
