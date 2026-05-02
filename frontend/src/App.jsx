@@ -33,79 +33,66 @@ function App() {
         logging: false,
         windowWidth: 1400,
         onclone: (clonedDoc) => {
-          const reportEl = clonedDoc.getElementById('dashboard-report');
-          
-          // Clear styles for a perfectly clean high-fidelity report
+          // Step 1: Remove all stylesheets
           clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
-
-          const pdfStyle = clonedDoc.createElement('style');
-          pdfStyle.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
-            
-            #dashboard-report { 
-              background-color: #f8fafc !important; 
-              color: #0f172a !important; 
-              font-family: 'Inter', sans-serif !important; 
-              width: 1400px !important; 
-              padding: 80px !important; 
-              display: flex !important;
-              flex-direction: column !important;
-              gap: 40px !important;
-            }
-            
-            .grid.lg\\:grid-cols-12 { 
-              display: flex !important; 
-              gap: 40px !important; 
-              width: 100% !important;
-            }
-            
-            .lg\\:col-span-4 { 
-              width: 380px !important; 
-              display: flex !important;
-              flex-direction: column !important;
-              gap: 32px !important;
-              flex-shrink: 0 !important;
-            }
-            
-            .lg\\:col-span-8 { 
-              flex: 1 !important;
-              display: flex !important;
-              flex-direction: column !important;
-              gap: 32px !important;
-              min-width: 0 !important;
-            }
-
-            .pdf-break-avoid { 
-              page-break-inside: avoid !important; 
-              break-inside: avoid !important; 
-              background-color: #ffffff !important; 
-              border: 1px solid #e2e8f0 !important; 
-              border-radius: 32px !important; 
-              padding: 40px !important; 
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-            }
-
-            h2, h3 { color: #0f172a !important; font-weight: 900 !important; margin: 0 0 20px 0 !important; }
-            .text-5xl { font-size: 36px !important; }
-            .text-2xl { font-size: 18px !important; }
-            .text-white { color: #0f172a !important; }
-            .text-cyan-400 { color: #0891b2 !important; }
-            .text-slate-400, .text-slate-500 { color: #64748b !important; }
-            .text-cyan-500 { color: #0891b2 !important; }
-            
-            .bg-slate-900\\/60, .bg-slate-900\\/90 { background-color: #ffffff !important; }
-            .bg-white\\/5 { background-color: #f1f5f9 !important; border-radius: 20px !important; padding: 24px !important; }
-            .bg-cyan-500\\/10 { background-color: #ecfeff !important; color: #0891b2 !important; }
-            
-            .w-48 { width: 140px !important; height: 140px !important; }
-            .rounded-full { border-radius: 9999px !important; }
-            
-            /* Chart Adjustments */
-            .h-\\[400px\\], .h-\\[300px\\] { height: 320px !important; width: 100% !important; }
-            svg { overflow: visible !important; }
-            .recharts-cartesian-axis-tick-value { fill: #64748b !important; font-size: 12px !important; }
+          // Step 2: Strip CSS custom properties from :root
+          const rootEl = clonedDoc.documentElement;
+          rootEl.removeAttribute('style');
+          rootEl.style.cssText = 'color-scheme: light !important;';
+          if (clonedDoc.body) {
+            clonedDoc.body.removeAttribute('style');
+            clonedDoc.body.style.cssText = 'background:#f8fafc!important;color:#0f172a!important;margin:0;padding:0;';
+          }
+          // Step 3: Walk every element and inline safe computed colors
+          const reportEl = clonedDoc.getElementById('dashboard-report');
+          if (reportEl) {
+            reportEl.querySelectorAll('*').forEach(el => {
+              const cs = window.getComputedStyle(el);
+              const bg = cs.backgroundColor;
+              const fg = cs.color;
+              const bc = cs.borderColor;
+              if (bg && !bg.includes('oklch')) el.style.backgroundColor = bg;
+              if (fg && !fg.includes('oklch')) el.style.color = fg;
+              if (bc && !bc.includes('oklch')) el.style.borderColor = bc;
+            });
+          }
+          // Step 4: Inject clean PDF stylesheet
+          const s = clonedDoc.createElement('style');
+          s.textContent = `
+            *,*::before,*::after{--tw-ring-color:transparent!important;--tw-shadow:none!important;}
+            #dashboard-report{background:#f8fafc!important;color:#0f172a!important;font-family:'Inter',Arial,sans-serif!important;width:1400px!important;padding:80px!important;display:flex!important;flex-direction:column!important;gap:40px!important;}
+            #dashboard-report *{border-color:#e2e8f0!important;}
+            .grid{display:flex!important;gap:40px!important;width:100%!important;}
+            .lg\\:col-span-4{width:380px!important;display:flex!important;flex-direction:column!important;gap:32px!important;flex-shrink:0!important;}
+            .lg\\:col-span-8{flex:1!important;display:flex!important;flex-direction:column!important;gap:32px!important;min-width:0!important;}
+            .pdf-break-avoid{background:#fff!important;border:1px solid #e2e8f0!important;border-radius:32px!important;padding:40px!important;box-shadow:0 4px 6px -1px rgba(0,0,0,.05)!important;}
+            h2,h3{color:#0f172a!important;font-weight:900!important;}
+            .text-white{color:#0f172a!important;}
+            .text-cyan-400,.text-cyan-500{color:#0891b2!important;}
+            .text-slate-400,.text-slate-500{color:#64748b!important;}
+            .text-slate-300,.text-slate-600{color:#475569!important;}
+            .text-yellow-400{color:#d97706!important;}
+            .text-purple-400{color:#7c3aed!important;}
+            [class*="bg-slate-900"],[class*="bg-slate-800"]{background:#fff!important;}
+            [class*="bg-white/5"]{background:#f1f5f9!important;}
+            [class*="bg-cyan-500/10"]{background:#ecfeff!important;}
+            img.rounded-full{border-color:#06b6d4!important;}
+            .h-\\[400px\\],.h-\\[300px\\]{height:320px!important;width:100%!important;}
+            svg{overflow:visible!important;}
+            .recharts-cartesian-axis-tick-value{fill:#64748b!important;font-size:12px!important;}
+            [class*="border-white"]{border-color:#e2e8f0!important;}
+            [class*="backdrop-blur"]{backdrop-filter:none!important;}
+            .space-y-12>*+*{margin-top:48px!important;}
+            .space-y-10>*+*{margin-top:40px!important;}
+            .space-y-8>*+*{margin-top:32px!important;}
+            .space-y-6>*+*{margin-top:24px!important;}
+            .grid-cols-2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:24px!important;}
+            .md\\:grid-cols-2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:40px!important;}
+            [class*="blur-"]{filter:none!important;}
+            [class*="shadow-"]{box-shadow:none!important;}
+            .pdf-break-avoid{box-shadow:0 4px 6px -1px rgba(0,0,0,.05)!important;}
           `;
-          clonedDoc.head.appendChild(pdfStyle);
+          clonedDoc.head.appendChild(s);
         }
       });
 
