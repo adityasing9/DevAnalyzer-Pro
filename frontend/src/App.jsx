@@ -22,103 +22,91 @@ function App() {
 
   const downloadPDF = async () => {
     try {
-      const element = document.getElementById('dashboard-report')
-      if (!element) throw new Error('Report element not found')
+      if (!report) throw new Error('No report data')
+      const langs = Object.entries(report.languages || {}).slice(0, 6)
+      const maxLang = Math.max(...langs.map(l => l[1]), 1)
+      const repos = report.top_repos || []
+      const steps = report.roadmap || ['Master advanced patterns.', 'Contribute to open source.', 'Publish technical whitepapers.']
+      const specs = (report.specializations || ['FRONTEND', 'SYSTEMS']).map(s => `<span style="display:inline-block;padding:8px 18px;border-radius:14px;background:#ecfeff;color:#0891b2;font-size:11px;font-weight:800;letter-spacing:2px;">${s}</span>`).join(' ')
+      const repoRows = repos.map(r => `<div style="display:flex;justify-content:space-between;align-items:center;background:#f1f5f9;padding:20px 28px;border-radius:20px;"><div><div style="font-size:18px;font-weight:900;color:#0f172a;">${r.name}</div><div style="font-size:12px;color:#64748b;margin-top:4px;">${r.description || 'No description'}</div></div><div style="text-align:right;"><div style="color:#0891b2;font-weight:900;font-size:16px;">${r.score} IQ</div><div style="font-size:9px;color:#94a3b8;font-weight:800;letter-spacing:2px;text-transform:uppercase;">${r.language || ''}</div></div></div>`).join('')
+      const stepRows = steps.map((st, i) => `<div style="display:flex;gap:20px;align-items:center;background:#f1f5f9;padding:20px;border-radius:20px;"><div style="width:36px;height:36px;border-radius:50%;border:2px solid #06b6d4;display:flex;align-items:center;justify-content:center;font-weight:900;color:#0891b2;flex-shrink:0;">${i+1}</div><div style="font-size:15px;color:#475569;">${st}</div></div>`).join('')
+      const langBars = langs.map(([n, v]) => `<div style="text-align:center;flex:1;"><div style="height:${Math.round((v/maxLang)*180)}px;background:#06b6d4;border-radius:8px 8px 0 0;margin:0 8px;min-height:20px;"></div><div style="font-size:11px;color:#64748b;margin-top:8px;">${n}</div></div>`).join('')
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#f8fafc',
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        windowWidth: 1400,
-        onclone: (clonedDoc) => {
-          // Step 1: Remove all stylesheets
-          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
-          // Step 2: Strip CSS custom properties from :root
-          const rootEl = clonedDoc.documentElement;
-          rootEl.removeAttribute('style');
-          rootEl.style.cssText = 'color-scheme: light !important;';
-          if (clonedDoc.body) {
-            clonedDoc.body.removeAttribute('style');
-            clonedDoc.body.style.cssText = 'background:#f8fafc!important;color:#0f172a!important;margin:0;padding:0;';
-          }
-          // Step 3: Walk every element and inline safe computed colors
-          const reportEl = clonedDoc.getElementById('dashboard-report');
-          if (reportEl) {
-            reportEl.querySelectorAll('*').forEach(el => {
-              const cs = window.getComputedStyle(el);
-              const bg = cs.backgroundColor;
-              const fg = cs.color;
-              const bc = cs.borderColor;
-              if (bg && !bg.includes('oklch')) el.style.backgroundColor = bg;
-              if (fg && !fg.includes('oklch')) el.style.color = fg;
-              if (bc && !bc.includes('oklch')) el.style.borderColor = bc;
-            });
-          }
-          // Step 4: Inject clean PDF stylesheet
-          const s = clonedDoc.createElement('style');
-          s.textContent = `
-            *,*::before,*::after{--tw-ring-color:transparent!important;--tw-shadow:none!important;}
-            #dashboard-report{background:#f8fafc!important;color:#0f172a!important;font-family:'Inter',Arial,sans-serif!important;width:1400px!important;padding:80px!important;display:flex!important;flex-direction:column!important;gap:40px!important;}
-            #dashboard-report *{border-color:#e2e8f0!important;}
-            .grid{display:flex!important;gap:40px!important;width:100%!important;}
-            .lg\\:col-span-4{width:380px!important;display:flex!important;flex-direction:column!important;gap:32px!important;flex-shrink:0!important;}
-            .lg\\:col-span-8{flex:1!important;display:flex!important;flex-direction:column!important;gap:32px!important;min-width:0!important;}
-            .pdf-break-avoid{background:#fff!important;border:1px solid #e2e8f0!important;border-radius:32px!important;padding:40px!important;box-shadow:0 4px 6px -1px rgba(0,0,0,.05)!important;}
-            h2,h3{color:#0f172a!important;font-weight:900!important;}
-            .text-white{color:#0f172a!important;}
-            .text-cyan-400,.text-cyan-500{color:#0891b2!important;}
-            .text-slate-400,.text-slate-500{color:#64748b!important;}
-            .text-slate-300,.text-slate-600{color:#475569!important;}
-            .text-yellow-400{color:#d97706!important;}
-            .text-purple-400{color:#7c3aed!important;}
-            [class*="bg-slate-900"],[class*="bg-slate-800"]{background:#fff!important;}
-            [class*="bg-white/5"]{background:#f1f5f9!important;}
-            [class*="bg-cyan-500/10"]{background:#ecfeff!important;}
-            img.rounded-full{border-color:#06b6d4!important;}
-            .h-\\[400px\\],.h-\\[300px\\]{height:320px!important;width:100%!important;}
-            svg{overflow:visible!important;}
-            .recharts-cartesian-axis-tick-value{fill:#64748b!important;font-size:12px!important;}
-            [class*="border-white"]{border-color:#e2e8f0!important;}
-            [class*="backdrop-blur"]{backdrop-filter:none!important;}
-            .space-y-12>*+*{margin-top:48px!important;}
-            .space-y-10>*+*{margin-top:40px!important;}
-            .space-y-8>*+*{margin-top:32px!important;}
-            .space-y-6>*+*{margin-top:24px!important;}
-            .grid-cols-2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:24px!important;}
-            .md\\:grid-cols-2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:40px!important;}
-            [class*="blur-"]{filter:none!important;}
-            [class*="shadow-"]{box-shadow:none!important;}
-            .pdf-break-avoid{box-shadow:0 4px 6px -1px rgba(0,0,0,.05)!important;}
-          `;
-          clonedDoc.head.appendChild(s);
-        }
-      });
+      const htmlContent = `<!DOCTYPE html><html><head><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;width:1400px;padding:60px;}</style></head><body>
+<div style="display:flex;gap:40px;">
+<div style="width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:28px;">
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:40px;text-align:center;">
+<img src="${report.avatar_url}" crossorigin="anonymous" style="width:120px;height:120px;border-radius:50%;border:3px solid #06b6d4;display:block;margin:0 auto 16px;" />
+<div style="font-size:28px;font-weight:900;">${report.name || report.github_username}</div>
+<div style="font-size:14px;font-weight:800;color:#0891b2;letter-spacing:2px;text-transform:uppercase;margin:6px 0 12px;">@${report.github_username}</div>
+<div style="font-size:13px;color:#64748b;font-style:italic;">"${report.bio || 'Exploring the boundaries of technology.'}"</div>
+<div style="display:flex;gap:16px;margin-top:24px;padding-top:24px;border-top:1px solid #e2e8f0;">
+<div style="flex:1;background:#f1f5f9;border-radius:16px;padding:14px;text-align:center;"><div style="font-size:28px;font-weight:900;">${report.public_repos||0}</div><div style="font-size:9px;color:#94a3b8;font-weight:800;letter-spacing:2px;">REPOS</div></div>
+<div style="flex:1;background:#f1f5f9;border-radius:16px;padding:14px;text-align:center;"><div style="font-size:28px;font-weight:900;">${report.followers||0}</div><div style="font-size:9px;color:#94a3b8;font-weight:800;letter-spacing:2px;">FOLLOWERS</div></div>
+</div></div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:40px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div style="font-size:16px;font-weight:800;text-transform:uppercase;">Developer IQ</div><span style="font-size:24px;">🏆</span></div>
+<div style="font-size:96px;font-weight:900;line-height:1;">${report.score}</div>
+<div style="height:12px;background:#e2e8f0;border-radius:8px;margin-top:16px;overflow:hidden;"><div style="height:100%;width:${report.score}%;background:linear-gradient(90deg,#06b6d4,#2563eb);border-radius:8px;"></div></div>
+</div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:40px;text-align:center;">
+<div style="font-size:16px;font-weight:800;text-align:left;margin-bottom:24px;">Career Readiness</div>
+<div style="font-size:56px;font-weight:900;color:#0f172a;margin:20px 0;">67%</div>
+<div style="font-size:13px;color:#64748b;">Profile optimized for</div>
+<div style="font-size:22px;font-weight:900;color:#0891b2;text-transform:uppercase;margin-top:4px;">${report.primary_domain||'Engineering'}</div>
+</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:28px;min-width:0;">
+<div style="display:flex;gap:28px;">
+<div style="flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:32px;"><div style="font-size:16px;font-weight:800;margin-bottom:16px;">Specializations</div><div style="display:flex;flex-wrap:wrap;gap:8px;">${specs}</div></div>
+<div style="flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:32px;"><div style="font-size:16px;font-weight:800;margin-bottom:16px;">Cognitive Insights</div><div style="font-size:13px;color:#64748b;line-height:1.6;">Strength: Consistent contributions. Growth Area: Broad but potentially surface-level stack.</div></div>
+</div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:36px;">
+<div style="font-size:16px;font-weight:800;margin-bottom:24px;">Technological DNA</div>
+<div style="display:flex;align-items:flex-end;height:200px;padding-top:20px;">${langBars}</div>
+</div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:36px;">
+<div style="font-size:16px;font-weight:800;margin-bottom:20px;">Core Repository Audit</div>
+<div style="display:flex;flex-direction:column;gap:12px;">${repoRows}</div>
+</div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:36px;">
+<div style="font-size:22px;font-weight:900;margin-bottom:24px;">Precision Career Path</div>
+<div style="display:flex;flex-direction:column;gap:12px;">${stepRows}</div>
+</div>
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:36px;">
+<div style="font-size:16px;font-weight:800;margin-bottom:16px;">AI Career Mentor</div>
+<div style="background:#f1f5f9;padding:24px;border-radius:20px;font-size:14px;color:#475569;line-height:1.7;">${aiInsight || 'Analyzing your potential...'}</div>
+</div>
+</div></div></body></html>`
+
+      // Render in isolated iframe — zero Tailwind, zero oklch
+      const iframe = document.createElement('iframe')
+      iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:1400px;height:5000px;border:none;'
+      document.body.appendChild(iframe)
+
+      await new Promise((resolve) => {
+        iframe.onload = resolve
+        iframe.srcdoc = htmlContent
+      })
+      // Wait for images
+      await new Promise(r => setTimeout(r, 1500))
+
+      const iframeBody = iframe.contentDocument.body
+      const canvas = await html2canvas(iframeBody, { scale: 2, backgroundColor: '#f8fafc', useCORS: true, allowTaint: true, logging: false, width: 1400 })
+      document.body.removeChild(iframe)
 
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgData = canvas.toDataURL('image/jpeg', 0.98)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width
-      
-      let heightLeft = imgHeight
-      let position = 0
-
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight)
-        heightLeft -= pageHeight
-      }
-
+      const imgData = canvas.toDataURL('image/jpeg', 0.95)
+      const pdfW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const imgH = (canvas.height * pdfW) / canvas.width
+      let left = imgH, pos = 0
+      pdf.addImage(imgData, 'JPEG', 0, pos, pdfW, imgH)
+      left -= pageH
+      while (left > 0) { pos = left - imgH; pdf.addPage(); pdf.addImage(imgData, 'JPEG', 0, pos, pdfW, imgH); left -= pageH; }
       pdf.save(`${username || 'developer'}_audit_report.pdf`)
     } catch (err) {
-      console.error('PDF Export Error:', err)
-      alert(`Export Failed. Please try again.`)
+      console.error('CRITICAL PDF ERROR:', err)
+      alert(`Export Failed: ${err.message}`)
     }
   }
 
