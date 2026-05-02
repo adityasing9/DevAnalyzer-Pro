@@ -92,6 +92,7 @@ function App() {
         logging: false,
         windowWidth: 1280,
         onclone: (clonedDoc) => {
+          const reportEl = clonedDoc.getElementById('dashboard-report');
           // 1. PRODUCTION STABILIZATION: Completely strip all external CSS
           // This is the ONLY way to prevent the "oklch" crash in Tailwind v4 production.
           // We rely on our hardcoded lightThemeStyle below for perfect, safe rendering.
@@ -167,7 +168,7 @@ function App() {
             const h = svg.getAttribute('height') || '300';
             svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
             svg.setAttribute('width', '100%');
-            svg.setAttribute('height', 'auto');
+            svg.setAttribute('height', '100%');
           });
 
           // 5. ROBUST PAGINATION: Insert spacers to avoid slicing cards
